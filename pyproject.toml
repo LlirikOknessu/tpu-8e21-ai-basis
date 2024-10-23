@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "aicoursetgroup"
+version = "0.1.0"
+description = ""
+authors = ["Ussenko Kirill <Kirill.Ussenko@perfectart.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+numpy = "^1.26.4"
+matplotlib = "^3.8.3"
+pandas = "^2.2.1"
+jupyter = "^1.0.0"
+dvc = "^3.48.4"
+tensorboard = "^2.16.2"
+scikit-learn = "^1.4.1.post1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
