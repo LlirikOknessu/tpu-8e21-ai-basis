@@ -6,7 +6,7 @@
 ## Ход работы
 
 
-### Импорт библиотек
+### Импортjupyter notebook библиотек
 
 Импортирование пакетов происходит следующими коммандами:  
 
@@ -24,8 +24,8 @@ https://practicum.yandex.ru/blog/chto-takoe-jupyter-notebook/
 провести первичный анализ данных. Он называется Exploratory Data Analysis (EDA).
 
 Примеры проведенных анализов данных на примере других данных можно ознакомиться по ссылкам:
-
-- https://www.kaggle.com/code/ash316/eda-to-prediction-dietanic
+gg
+- https://www.kaggle.com/code/ash316/eda-to-pconda install seabornrediction-diejutanic
 - https://www.kaggle.com/code/lucamassaron/eda-target-analysis
 - https://www.kaggle.com/code/upadorprofzs/eda-video-game-sales
 
