@@ -159,8 +159,8 @@ if __name__ == '__main__':
     car_table_3 = pd.read_csv(src_table[2], delimiter=',')
     #print(car_table_1.info(), car_table_2.info(), car_table_3.info())
     car_table_clear = clean_data(car_table_1, car_table_2, car_table_3)
-    print('Обработанное')
-    print(car_table_clear.info())
+    #print('Обработанное')
+    #print(car_table_clear.info())
     X, y = car_table_clear.drop("selling_price", axis=1), car_table_clear['selling_price']
     X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                         train_size=params.get('train_test_ratio'),
