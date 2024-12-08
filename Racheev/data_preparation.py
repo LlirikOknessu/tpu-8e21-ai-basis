@@ -47,6 +47,39 @@ def words(line, word_numb = 1, start_position = 0):
     words = line.split()
     return ' '.join(words[start_position : (start_position + word_numb)])
 
+def set_brand(car_table: pd.DataFrame) -> pd.DataFrame:
+    # Создаёт столбец brand - марка автомобиля
+    car_table['brand'] = car_table['name'].apply(words, word_numb=1)
+    ## Преобразование марок автомобилей
+    car_table['brand'] = car_table['brand'].replace(
+        ['Activa', 'Ambassador', 'Hero', 'Land', 'Maruti', 'OpelCorsa', 'Royal', 'alto'],
+        ['Honda', 'Hindustan', 'Dongfeng', 'Land Rover', 'Suzuki', 'Opel', 'Royal Enfield', 'Maruti'])
+    car_table['brand'] = car_table['brand'].replace(['amaze', 'baleno', 'brio', 'camry', 'ciaz', 'city'],
+                                                    ['Honda', 'Suzuki', 'Honda', 'Toyota', 'Suzuki', 'Honda'])
+    car_table['brand'] = car_table['brand'].replace(
+        ['corolla', 'creta', 'dzire', 'elantra', 'eon', 'ertiga', 'etios', 'fortuner'],
+        ['Toyota', 'Hyundai', 'Suzuki', 'Hyundai', 'Hyundai', 'Suzuki', 'Toyota', 'Toyota'])
+    car_table['brand'] = car_table['brand'].replace(['grand', 'i10', 'i20', 'ignis', 'innova', 'jazz', 'omni', 'ritz'],
+                                                    ['Hyundai', 'Hyundai', 'Hyundai', 'Suzuki', 'Toyota', 'Honda',
+                                                     'Suzuki', 'Suzuki'])
+    car_table['brand'] = car_table['brand'].replace(['s', 'swift', 'sx4', 'verna', 'vitara', 'xcent', 'wagon'],
+                                                    ['Suzuki', 'Maruti', 'Suzuki', 'Hyundai', 'Suzuki', 'Hyundai',
+                                                     'Maruti'])
+    ## Группировка марок
+    car_table['brand'] = car_table['brand'].replace(['Maruti'], ['Suzuki'])
+    car_table['brand'] = car_table['brand'].replace(
+        ['Datsun', 'Ashok', 'Fiat', 'Chevrolet', 'UM', 'Hindustan', 'Hyosung', 'KTM', 'Royal Enfield', 'Opel', 'Daewoo',
+         'Yamaha', 'Peugeot', 'Bajaj', 'TVS', 'Dongfeng'], 'Chevrolet')
+    car_table['brand'] = car_table['brand'].replace(
+        ['Lexus', 'Volvo', 'Land Rover', 'BMW', 'Jaguar', 'Mercedes-Benz', 'Audi'], 'BMW')
+    car_table['brand'] = car_table['brand'].replace(
+        ['MG', 'Jeep', 'Isuzu', 'Kia', 'Toyota', 'Mitsubishi', 'Force', 'Mahindra', 'Honda', 'Skoda', 'Ford',
+         'Volkswagen', 'Nissan', 'Hyundai', 'Renault', 'Suzuki', 'Tata'], 'Suzuki')
+    car_table['brand'] = car_table['brand'].replace(['BMW', 'Suzuki', 'Chevrolet'],
+                                                    ['High class', 'Middle class', 'Low class'])
+    return car_table
+
+
 def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3: pd.DataFrame) -> pd.DataFrame:
     # Очистка и объединение данных
 
@@ -90,31 +123,7 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
     car_table.drop(car_table[car_table['selling_price'] < 40000].index, inplace=True)    #40000  85000
 
     #Марка автомобилей обработка
-    car_table['brand'] = car_table['name'].apply(words, word_numb=1)
-    ## Преобразование марок автомобилей
-    car_table['brand'] = car_table['brand'].replace(['Activa', 'Ambassador', 'Hero',        'Land', 'Maruti', 'OpelCorsa', 'Royal', 'alto'],
-                                                    ['Honda', 'Hindustan', 'Dongfeng', 'Land Rover', 'Suzuki', 'Opel', 'Royal Enfield', 'Maruti'])
-    car_table['brand'] = car_table['brand'].replace(['amaze', 'baleno', 'brio', 'camry', 'ciaz', 'city'],
-                                                    ['Honda', 'Suzuki', 'Honda', 'Toyota', 'Suzuki', 'Honda'])
-    car_table['brand'] = car_table['brand'].replace(
-        ['corolla', 'creta', 'dzire', 'elantra', 'eon', 'ertiga', 'etios', 'fortuner'],
-        ['Toyota', 'Hyundai', 'Suzuki', 'Hyundai', 'Hyundai', 'Suzuki', 'Toyota', 'Toyota'])
-    car_table['brand'] = car_table['brand'].replace(['grand', 'i10', 'i20', 'ignis', 'innova', 'jazz', 'omni', 'ritz'],
-                                                    ['Hyundai', 'Hyundai', 'Hyundai', 'Suzuki', 'Toyota', 'Honda', 'Suzuki', 'Suzuki'])
-    car_table['brand'] = car_table['brand'].replace(['s',      'swift',    'sx4',  'verna',  'vitara',   'xcent', 'wagon'],
-                                                    ['Suzuki', 'Maruti', 'Suzuki','Hyundai','Suzuki','Hyundai', 'Maruti'])
-    ## Группировка марок
-    car_table['brand'] = car_table['brand'].replace(['Maruti'], ['Suzuki'])
-    car_table['brand'] = car_table['brand'].replace(
-        ['Datsun', 'Ashok', 'Fiat', 'Chevrolet', 'UM', 'Hindustan', 'Hyosung', 'KTM', 'Royal Enfield', 'Opel', 'Daewoo',
-         'Yamaha', 'Peugeot', 'Bajaj', 'TVS', 'Dongfeng'], 'Chevrolet')
-    car_table['brand'] = car_table['brand'].replace(
-        ['Lexus', 'Volvo', 'Land Rover', 'BMW', 'Jaguar', 'Mercedes-Benz', 'Audi'], 'BMW')
-    car_table['brand'] = car_table['brand'].replace(
-        ['MG', 'Jeep', 'Isuzu', 'Kia', 'Toyota', 'Mitsubishi', 'Force', 'Mahindra', 'Honda', 'Skoda', 'Ford',
-         'Volkswagen', 'Nissan', 'Hyundai', 'Renault', 'Suzuki', 'Tata'], 'Suzuki')
-    car_table['brand'] = car_table['brand'].replace(['BMW', 'Suzuki', 'Chevrolet'],
-                                                    ['High class', 'Middle class', 'Low class'])
+    car_table = set_brand(car_table)
     # Преобразование года автомобиля
     car_table[(car_table['year'] <= 2000) & (car_table['selling_price'] > 300000)]
     # Удаление строк с электромобилем
@@ -148,12 +157,22 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
     #
     # Удалим столбец name, так как он имеет много различных текстовых данных, которые были обработаны в столбец brand
     car_table.drop(columns='name', inplace=True)
-    # Удаление неиспользуемых столбцов
-    car_table.drop(columns=['km_driven', 'seats'], inplace=True)
-    car_table.drop(columns=['mileage', 'engine', 'max_power'], inplace=True)
-    car_table.drop(columns='torque', inplace=True)
+    car_table['max_power'] = car_table['max_power'].fillna("0")
+    car_table['mpow_val'] = car_table['max_power'].apply(words, word_numb=1)
+    car_table['mpow_val'] = car_table['mpow_val'].str.replace('bhp', '0')
+    car_table['mpow_val'] = car_table['mpow_val'].astype(float)
+    step = 2.5 * math.pow(10, 1)
+    car_table['mpow_val_d'] = (((car_table['mpow_val']) + step / 2) // step) * step
+    car_table.drop(columns=['mpow_val'], inplace=True)
 
-    car_table = to_categorical(car_table) #  примере в этом файле была функция
+    # Удаление неиспользуемых столбцов
+
+    car_table.drop(columns=['km_driven', 'seats'], inplace=True)
+    car_table.drop(columns=['mileage', 'engine', 'max_power', 'torque'], inplace=True)
+    # Удаление строк без мощности
+    car_table = car_table[car_table['mpow_val_d'] != 0]
+
+    #car_table = to_categorical(car_table) #  примере в этом файле была функция
     return car_table
 
 if __name__ == '__main__':

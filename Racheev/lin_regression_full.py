@@ -45,7 +45,6 @@ if __name__ == '__main__':
     coefficients = reg.coef_.astype(float)
     intercept = pd.Series(intercept, name='intercept')
     coefficients = pd.Series(coefficients[0], name='coefficients')
-    print("Model R2: ", reg.score(X_val, y_val))
     print("intercept:", intercept)
     print("list of coefficients:", coefficients)
     columns = [x for x in range(len(coefficients))]
