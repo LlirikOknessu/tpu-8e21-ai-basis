@@ -18,6 +18,31 @@ def parser_args_for_sac():
                         help='file with dvc stage params')
     return parser.parse_args()
 
+
+def to_categorical(car_table: pd.DataFrame):
+    #car_table[df.select_dtypes('object').columns] = df.select_dtypes('object').astype('category')
+    '''
+    df.experience_level = pd.Categorical(df.experience_level)
+    df = df.assign(experience_level=df.experience_level.cat.codes)
+    df.employment_type = pd.Categorical(df.employment_type)
+    df = df.assign(employment_type=df.employment_type.cat.codes)
+    df.employee_residence = pd.Categorical(df.employee_residence)
+    df = df.assign(employee_residence=df.employee_residence.cat.codes)
+    df.company_size = pd.Categorical(df.company_size)
+    df = df.assign(company_size=df.company_size.cat.codes)
+    df.company_location = pd.Categorical(df.company_location)
+    df = df.assign(company_location=df.company_location.cat.codes)
+    df.job_title = pd.Categorical(df.job_title)
+    df = df.assign(job_title=df.job_title.cat.codes)
+    df.work_year = pd.Categorical(df.work_year)
+    df = df.assign(work_year=df.work_year.cat.codes)
+    df.remote_ratio = pd.Categorical(df.remote_ratio)
+    df = df.assign(remote_ratio=df.remote_ratio.cat.codes)
+    '''
+    return car_table
+
+
+
 def words(line, word_numb = 1, start_position = 0):
     words = line.split()
     return ' '.join(words[start_position : (start_position + word_numb)])
@@ -59,6 +84,11 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
     #Удаление дублирования индексов
     car_table.reset_index(inplace=True)
     car_table.drop(columns='index', inplace = True)
+
+    #Удаление выбросов цены
+    car_table.drop(car_table[car_table['selling_price'] > 2000000 ].index, inplace=True)   #2000000  1200000
+    car_table.drop(car_table[car_table['selling_price'] < 40000].index, inplace=True)    #40000  85000
+
     #Марка автомобилей обработка
     car_table['brand'] = car_table['name'].apply(words, word_numb=1)
     ## Преобразование марок автомобилей
@@ -85,6 +115,8 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
          'Volkswagen', 'Nissan', 'Hyundai', 'Renault', 'Suzuki', 'Tata'], 'Suzuki')
     car_table['brand'] = car_table['brand'].replace(['BMW', 'Suzuki', 'Chevrolet'],
                                                     ['High class', 'Middle class', 'Low class'])
+    # Преобразование года автомобиля
+    car_table[(car_table['year'] <= 2000) & (car_table['selling_price'] > 300000)]
     # Удаление строк с электромобилем
     car_table = car_table.drop(car_table[car_table['fuel'] == 'Electric'].index)
     # Объёдинения газового топлива в одно
@@ -120,7 +152,8 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
     car_table.drop(columns=['km_driven', 'seats'], inplace=True)
     car_table.drop(columns=['mileage', 'engine', 'max_power'], inplace=True)
     car_table.drop(columns='torque', inplace=True)
-    #car_table = to_categorical(car_table) #  примере в этом файле была функция
+
+    car_table = to_categorical(car_table) #  примере в этом файле была функция
     return car_table
 
 if __name__ == '__main__':

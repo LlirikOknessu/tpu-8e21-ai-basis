@@ -60,7 +60,7 @@ if __name__ == '__main__':
     coefficients = pd.Series(coefficients[0], name='coefficients')
     print("intercept:", intercept)
     print("list of coefficients:", coefficients)
-    columns = [x for x in range(len(coefficients))]
+    columns = [x for x in range(len(coefficients))]   #############
     out_model = pd.DataFrame([coefficients, intercept])
     out_model.to_csv(output_model_path, index=False)
 
