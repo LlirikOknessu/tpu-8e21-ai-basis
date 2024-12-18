@@ -49,26 +49,26 @@ stages:
         - data/models/${key}.joblib
       params:
         - decision_tree
-    decision_tree_validation:
-      foreach: ${decision_tree}
-      do:
-        cmd: python decision_tree_validation.py -id data/prepared/ -im data/models/${key}.joblib -bm data/models/${linear_regression.model_name}_prod.joblib -mn ${key}
-        deps:
-          - decision_tree_validation.py
-          - data/prepared/
-          - data/models/${key}.joblib
-          - data/models/${linear_regression.model_name}_prod.joblib
-        params:
-          - decision_tree
-    decision_tree_prod_version:
-      foreach: ${decision_tree}
-      do:
-        cmd: python decision_tree_full.py -id data/prepared/ -od data/models/ -mn ${key}
-        deps:
-          - decision_tree_full.py
-          - data/prepared
-          - data/models/${key}.joblib
-        outs:
-          - data/models/${key}_prod.joblib
-        params:
-          - decision_tree
+  decision_tree_validation:
+    foreach: ${decision_tree}
+    do:
+      cmd: python decision_tree_validation.py -id data/prepared/ -im data/models/${key}.joblib -bm data/models/${linear_regression.model_name}_prod.joblib -mn ${key}
+      deps:
+        - decision_tree_validation.py
+        - data/prepared/
+        - data/models/${key}.joblib
+        - data/models/${linear_regression.model_name}_prod.joblib
+      params:
+        - decision_tree
+  decision_tree_prod_version:
+    foreach: ${decision_tree}
+    do:
+      cmd: python decision_tree_full.py -id data/prepared/ -od data/models/ -mn ${key}
+      deps:
+        - decision_tree_full.py
+        - data/prepared
+        - data/models/${key}.joblib
+      outs:
+        - data/models/${key}_prod.joblib
+      params:
+        - decision_tree
