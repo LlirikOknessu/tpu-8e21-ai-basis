@@ -21,26 +21,34 @@ def parser_args_for_sac():
 
 def to_categorical(car_table: pd.DataFrame):
     #car_table[df.select_dtypes('object').columns] = df.select_dtypes('object').astype('category')
-    '''
-    df.experience_level = pd.Categorical(df.experience_level)
-    df = df.assign(experience_level=df.experience_level.cat.codes)
-    df.employment_type = pd.Categorical(df.employment_type)
-    df = df.assign(employment_type=df.employment_type.cat.codes)
-    df.employee_residence = pd.Categorical(df.employee_residence)
-    df = df.assign(employee_residence=df.employee_residence.cat.codes)
-    df.company_size = pd.Categorical(df.company_size)
-    df = df.assign(company_size=df.company_size.cat.codes)
-    df.company_location = pd.Categorical(df.company_location)
-    df = df.assign(company_location=df.company_location.cat.codes)
-    df.job_title = pd.Categorical(df.job_title)
-    df = df.assign(job_title=df.job_title.cat.codes)
-    df.work_year = pd.Categorical(df.work_year)
-    df = df.assign(work_year=df.work_year.cat.codes)
-    df.remote_ratio = pd.Categorical(df.remote_ratio)
-    df = df.assign(remote_ratio=df.remote_ratio.cat.codes)
-    '''
+    car_table.brand = pd.Categorical(car_table.brand)
+    car_table = car_table.assign(brand=car_table.brand.cat.codes)
+    car_table.km_dr_gr = pd.Categorical(car_table.km_dr_gr)
+    car_table = car_table.assign(km_dr_gr=car_table.km_dr_gr.cat.codes)
+    #car_table.fuel = pd.Categorical(car_table.fuel)
+    #car_table = car_table.assign(fuel=car_table.fuel.cat.codes)
+    car_table['fuel'] = car_table['fuel'].replace(['Petrol', 'Diesel', 'Gaz'], ['1', '0', '2']).astype(np.int8)
+    car_table.transmission = pd.Categorical(car_table.transmission)
+    car_table = car_table.assign(transmission=car_table.transmission.cat.codes)
+    car_table.seller_type = pd.Categorical(car_table.seller_type)
+    car_table = car_table.assign(seller_type=car_table.seller_type.cat.codes)
+    car_table.owner = pd.Categorical(car_table.owner)
+    car_table = car_table.assign(owner=car_table.owner.cat.codes)
+    car_table.year = pd.Categorical(car_table.year)
+    car_table = car_table.assign(year=car_table.year.cat.codes)
+    '''                                                       # !!!!!!!Присвоим классам автомобилей численные значения для возможности обучения модели
+        car_table['brand'] = car_table['brand'].replace(['High class', 'Middle class', 'Low class'], [2, 1, 0])
+        car_table['km_dr_gr'] = car_table['km_dr_gr'].replace([35000, 60000, 100000, 150000], [0, 1, 2, 3])
+        car_table['km_dr_gr'] = car_table['km_dr_gr'].astype('category') 
+        # Присвоим типам топлива автомобиля численные значения для возможности обучения модели
+        car_table['fuel'] = car_table['fuel'].replace(['Petrol', 'Diesel', 'Gaz'], ['1', '0', '2']).astype(int)
+        # Присвоим типам трансмиссии автомобиля численные значения для возможности обучения модели
+        car_table['transmission'] = car_table['transmission'].replace(['Manual', 'Automatic'], ['0', '1']).astype(int)
+        # Присвоим типам продавцов численные значения для возможности обучения модели
+        car_table['seller_type'] = car_table['seller_type'].replace(['Dealer', 'Individual'], ['1', '0']).astype(int)
+        #car_table['km_dr_gr'] = car_table['km_dr_gr'].astype(int)
+        '''
     return car_table
-
 
 
 def words(line, word_numb = 1, start_position = 0):
@@ -75,8 +83,16 @@ def set_brand(car_table: pd.DataFrame) -> pd.DataFrame:
     car_table['brand'] = car_table['brand'].replace(
         ['MG', 'Jeep', 'Isuzu', 'Kia', 'Toyota', 'Mitsubishi', 'Force', 'Mahindra', 'Honda', 'Skoda', 'Ford',
          'Volkswagen', 'Nissan', 'Hyundai', 'Renault', 'Suzuki', 'Tata'], 'Suzuki')
-    car_table['brand'] = car_table['brand'].replace(['BMW', 'Suzuki', 'Chevrolet'],
-                                                    ['High class', 'Middle class', 'Low class'])
+
+    car_brand = car_table.groupby('brand')['selling_price'].mean().reset_index()
+    car_brand = car_brand.sort_values(by='selling_price', ascending=False).reset_index()
+    car_brand.drop(columns='index', inplace=True)
+    brand_list = car_brand['brand'].to_list()
+    brandn_list = car_brand.index.to_list()
+    car_table['brand'] = car_table['brand'].replace(brand_list, brandn_list)
+    car_table['brand'] = pd.cut(car_table['brand'], 7)
+    #car_table['brand'] = car_table['brand'].replace(['BMW', 'Suzuki', 'Chevrolet'],
+    #                                                ['High class', 'Middle class', 'Low class'])
     return car_table
 
 
@@ -138,22 +154,9 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
     car_table['km_dr_gr'] = car_table['km_dr_gr'].astype(str)
     car_table['km_dr_gr'] = car_table['km_dr_gr'].replace(qkm.index.astype('str').to_list(), [35000,60000,100000,150000])
     car_table['km_dr_gr'] = car_table['km_dr_gr'].astype(np.int64)
-                                                          # !!!!!!!Присвоим классам автомобилей численные значения для возможности обучения модели
-    car_table['brand'] = car_table['brand'].replace(['High class', 'Middle class', 'Low class'], [2, 1, 0])
-    car_table['km_dr_gr'] = car_table['km_dr_gr'].replace([35000, 60000, 100000, 150000], [0, 1, 2, 3])
-    car_table['km_dr_gr'] = car_table['km_dr_gr'].astype('category')
 
     # Объёдинения диллеров в единых
     car_table['seller_type'] = car_table['seller_type'].replace(['Trustmark Dealer'], ['Dealer'])
-
-    # Присвоим типам топлива автомобиля численные значения для возможности обучения модели
-    car_table['fuel'] = car_table['fuel'].replace(['Petrol', 'Diesel', 'Gaz'], ['1', '0', '2']).astype(int)
-    # Присвоим типам трансмиссии автомобиля численные значения для возможности обучения модели
-    car_table['transmission'] = car_table['transmission'].replace(['Manual', 'Automatic'], ['0', '1']).astype(int)
-    # Присвоим типам продавцов численные значения для возможности обучения модели
-    car_table['seller_type'] = car_table['seller_type'].replace(['Dealer', 'Individual'], ['1', '0']).astype(int)
-    car_table['km_dr_gr'] = car_table['km_dr_gr'].astype(int)
-
     #
     # Удалим столбец name, так как он имеет много различных текстовых данных, которые были обработаны в столбец brand
     car_table.drop(columns='name', inplace=True)
@@ -161,18 +164,25 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
     car_table['mpow_val'] = car_table['max_power'].apply(words, word_numb=1)
     car_table['mpow_val'] = car_table['mpow_val'].str.replace('bhp', '0')
     car_table['mpow_val'] = car_table['mpow_val'].astype(float)
-    step = 2.5 * math.pow(10, 1)
-    car_table['mpow_val_d'] = (((car_table['mpow_val']) + step / 2) // step) * step
-    car_table.drop(columns=['mpow_val'], inplace=True)
+    #step = 2.5 * math.pow(10, 1)
+    #car_table['mpow_val_d'] = (((car_table['mpow_val']) + step / 2) // step) * step
+    #car_table.drop(columns=['mpow_val'], inplace=True)
 
     # Удаление неиспользуемых столбцов
 
     car_table.drop(columns=['km_driven', 'seats'], inplace=True)
     car_table.drop(columns=['mileage', 'engine', 'max_power', 'torque'], inplace=True)
     # Удаление строк без мощности
-    car_table = car_table[car_table['mpow_val_d'] != 0]
+    car_table = car_table[car_table['mpow_val'] != 0]
+    car_table['mpow_val'] = car_table[car_table['mpow_val'] != 0]['mpow_val'].apply(np.round).astype(int)
+    #car_table = car_table[car_table['mpow_val_d'] != 0]
 
-    #car_table = to_categorical(car_table) #  примере в этом файле была функция
+    car_table = to_categorical(car_table)
+    #нормализация
+    car_table['selling_price'] = car_table['selling_price'] / car_table['selling_price'].max()
+    car_table['selling_price'] = car_table['selling_price'].astype(np.float64)
+
+
     return car_table
 
 if __name__ == '__main__':
@@ -211,8 +221,10 @@ if __name__ == '__main__':
     car_table_3 = pd.read_csv(src_table[2], delimiter=',')
     #print(car_table_1.info(), car_table_2.info(), car_table_3.info())
     car_table_clear = clean_data(car_table_1, car_table_2, car_table_3)
-    #print('Обработанное')
-    #print(car_table_clear.info())
+    print('Обработанное')
+    print(car_table_clear.info())
+    print(car_table_clear.describe(include = 'all'))
+
     X, y = car_table_clear.drop("selling_price", axis=1), car_table_clear['selling_price']
     X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                         train_size=params.get('train_test_ratio'),
