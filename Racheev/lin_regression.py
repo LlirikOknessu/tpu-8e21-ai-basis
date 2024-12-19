@@ -17,7 +17,7 @@ def parser_args_for_sac():
                         required=False, help='path to input data directory')
     parser.add_argument('--output_dir', '-od', type=str, default='data/models/',
                         required=False, help='path to save prepared data')
-    parser.add_argument('--model_name', '-mn', type=str, default='lin_reg', required=False,
+    parser.add_argument('--model_name', '-mn', type=str, default='LR', required=False,
                         help='file with dvc stage params')
     return parser.parse_args()
 
@@ -60,8 +60,8 @@ if __name__ == '__main__':
     coefficients = pd.Series(coefficients[0], name='coefficients')
     print("intercept:", intercept)
     print("list of coefficients:", coefficients)
-    columns = [x for x in range(len(coefficients))]   #############
-    out_model = pd.DataFrame([coefficients, intercept])
+    columns = [x for x in range(len(coefficients))]
+    out_model = pd.DataFrame([coefficients, intercept], columns = columns)
     out_model.to_csv(output_model_path, index=False)
 
     dump(reg, output_model_joblib_path)

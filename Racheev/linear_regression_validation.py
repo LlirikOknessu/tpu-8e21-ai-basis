@@ -17,7 +17,7 @@ def parser_args_for_sac():
                         required=False, help='path to input data directory')
     parser.add_argument('--input_model', '-im', type=str, default='data/models/',
                         required=False, help='path to save prepared data')
-    parser.add_argument('--model_name', '-mn', type=str, default='lin_reg', required=False,
+    parser.add_argument('--model_name', '-mn', type=str, default='LR', required=False,
                         help='file with dvc stage params')
     return parser.parse_args()
 

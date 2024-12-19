@@ -72,3 +72,12 @@ stages:
         - data/models/${key}_prod.joblib
       params:
         - decision_tree
+  cat_boosting:
+    cmd: python cat_boost.py -id data/prepared/ -od data/models -bm data/models/${linear_regression.model_name}_prod.joblib -mn ${cat_boosting.model_name}
+    deps:
+      - cat_boost.py
+      - data/prepared
+    outs:
+      - data/models/${cat_boosting.model_name}.joblib
+    params:
+      - cat_boosting
