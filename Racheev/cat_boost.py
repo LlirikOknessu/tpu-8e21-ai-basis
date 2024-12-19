@@ -67,7 +67,8 @@ if __name__ == '__main__':
             'depth': [4, 6, 10],
             'l2_leaf_reg': [1, 3, 5, 7, 9]}
 
-    grid_search_result = cat.grid_search(grid, X=X_train, y=y_train, plot=True)
+    cat1 = CATBOOST_MODELS_MAPPER.get(args.model_name)().fit(X_train, y_train, verbose=False, plot=True)
+    cat = cat1.grid_search(grid, X=X_train, y=y_train, plot=True)
     cat.plot_tree(tree_idx=0)
 
     baseline_model = load(baseline_model_path)
