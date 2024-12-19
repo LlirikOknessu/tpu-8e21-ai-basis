@@ -54,7 +54,7 @@ if __name__ == '__main__':
     X_test = pd.read_csv(X_test_name)
     y_test = pd.read_csv(y_test_name)
 
-    random.seed(42)
+    random.seed(67)
     decision_tree_model = TREES_MODELS_MAPPER.get(args.model_name)()
     decision_tree_regressor = GridSearchCV(decision_tree_model, params[args.model_name])
 
