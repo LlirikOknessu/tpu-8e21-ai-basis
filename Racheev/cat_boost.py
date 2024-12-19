@@ -4,6 +4,7 @@ from pathlib import Path
 import yaml
 import numpy as np
 from joblib import dump, load
+from sklearn.metrics import mean_absolute_error
 import random
 from catboost import CatBoostRegressor
 from catboost import Pool, cv
@@ -34,9 +35,9 @@ if __name__ == '__main__':
 
     input_dir = Path(args.input_dir)
     output_dir = Path(args.output_dir)
+    baseline_model_path = Path(args.baseline_model)
 
     output_dir.mkdir(exist_ok=True, parents=True)
-    output_model_path = output_dir / (args.model_name + '.csv')
     output_model_joblib_path = output_dir / (args.model_name + '.joblib')
 
     X_train_name = input_dir / 'X_train.csv'
@@ -68,3 +69,16 @@ if __name__ == '__main__':
 
     grid_search_result = cat.grid_search(grid, X=X_train, y=y_train, plot=True)
     cat.plot_tree(tree_idx=0)
+
+    baseline_model = load(baseline_model_path)
+    y_pred_baseline = np.squeeze(baseline_model.predict(X_test))
+
+    predicted_values = np.squeeze(cat.predict(X_test))
+
+    print(cat.score(X_test, y_test))
+    print(cat.best_params_)
+
+    print("Baseline MAE: ", mean_absolute_error(y_test, y_pred_baseline))
+    print("Model MAE: ", mean_absolute_error(y_test, predicted_values))
+
+    dump(cat, output_model_joblib_path)
