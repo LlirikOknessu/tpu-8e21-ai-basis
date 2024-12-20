@@ -72,12 +72,31 @@ stages:
         - data/models/${key}_prod.joblib
       params:
         - decision_tree
-  cat_boosting:
-    cmd: python cat_boost.py -id data/prepared/ -od data/models -bm data/models/${linear_regression.model_name}_prod.joblib -mn ${cat_boosting.model_name}
+  cat_boost:
+    cmd: python cat_boost.py -id data/prepared/ -od data/models -bm data/models/${linear_regression.model_name}_prod.joblib -mn ${cat_boost.model_name}
     deps:
       - cat_boost.py
       - data/prepared
     outs:
-      - data/models/${cat_boosting.model_name}.joblib
+      - data/models/${cat_boost.model_name}.joblib
     params:
-      - cat_boosting
+      - cat_boost
+  cat_boost_validation:
+    cmd: python cat_boost_validation.py -id data/prepared/ -im data/models/${cat_boost.model_name}.joblib -bm data/models/${linear_regression.model_name}_prod.joblib -mn ${cat_boost.model_name}
+    deps:
+      - cat_boost_validation.py
+      - data/prepared/
+      - data/models/${cat_boost.model_name}.joblib
+      - data/models/${linear_regression.model_name}_prod.joblib
+    params:
+      - cat_boost
+  cat_boost_prod_version:
+    cmd: python cat_boost_full.py -id data/prepared/ -od data/models/ -mn ${cat_boost.model_name}
+    deps:
+      - cat_boost_full.py
+      - data/prepared
+      - data/models/${cat_boost.model_name}.joblib
+    outs:
+      - data/models/${cat_boost.model_name}_prod.joblib
+    params:
+      - cat_boost

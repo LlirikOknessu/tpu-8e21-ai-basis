@@ -912,3 +912,25 @@ stages:
       hash: md5
       md5: fbc8a646475889e944662d23005cea54
       size: 46385
+  cat_boosting:
+    cmd: python cat_boost.py -id data/prepared/ -od data/models -bm data/models/LinearRegression_prod.joblib
+      -mn CatBoostRegressor
+    deps:
+    - path: cat_boost.py
+      hash: md5
+      md5: 7170343b29db97c9a5f262355a754718
+      size: 3663
+    - path: data/prepared
+      hash: md5
+      md5: d9416719ab43785af90ae8f057ce686f.dir
+      size: 324604
+      nfiles: 8
+    params:
+      params.yaml:
+        cat_boosting:
+          model_name: CatBoostRegressor
+    outs:
+    - path: data/models/CatBoostRegressor.joblib
+      hash: md5
+      md5: 215577be72a32267abebce6967b7536b
+      size: 1103807

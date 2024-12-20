@@ -5,10 +5,10 @@ import yaml
 import numpy as np
 from joblib import dump, load
 from sklearn.metrics import mean_absolute_error
+from sklearn.model_selection import GridSearchCV
 import random
 from catboost import CatBoostRegressor
 from catboost import Pool, cv
-
 
 CATBOOST_MODELS_MAPPER = {'CatBoostRegressor': CatBoostRegressor}
 
@@ -22,16 +22,17 @@ def parser_args_for_sac():
                         required=False, help='path to linear regression prod version')
     parser.add_argument('--model_name', '-mn', type=str, default='LR', required=False,
                         help='file with dvc stage params')
-    #parser.add_argument('--params', '-p', type=str, default='params.yaml', required=False,
-    #                    help='file with dvc stage params')
+    parser.add_argument('--params', '-p', type=str, default='params.yaml', required=False,
+                        help='file with dvc stage params')
     return parser.parse_args()
 
 if __name__ == '__main__':
     args = parser_args_for_sac()
 
-    #with open(args.params, 'r') as f:
-    #    params_all = yaml.safe_load(f)
-    #params = params_all['decision_tree']
+    with open(args.params, 'r') as f:
+        params_all = yaml.safe_load(f)
+    params = params_all['cat_boost']
+
 
     input_dir = Path(args.input_dir)
     output_dir = Path(args.output_dir)
@@ -50,8 +51,9 @@ if __name__ == '__main__':
     X_test = pd.read_csv(X_test_name)
     y_test = pd.read_csv(y_test_name)
 
-    cat = CATBOOST_MODELS_MAPPER.get(args.model_name)().fit(X_train, y_train, verbose=False, plot=True)
+    cat = CATBOOST_MODELS_MAPPER.get(args.model_name)()
 
+    '''
     params = {"iterations": 100,
               "depth": 2,
               "loss_function": "RMSE",
@@ -66,7 +68,21 @@ if __name__ == '__main__':
     grid = {'learning_rate': [0.03, 0.1],
             'depth': [4, 6, 10],
             'l2_leaf_reg': [1, 3, 5, 7, 9]}
+    '''
 
+    '''
+    parameters = {'depth': [6, 8, 10],
+                  'learning_rate': [0.01, 0.05, 0.1],
+                  'iterations': [30, 50, 100]
+                  }
+
+    cat = GridSearchCV(estimator=cat, param_grid=parameters, cv=2, n_jobs=-1)
+    '''
+    random.seed(67)
+    #decision_tree_model = CATBOOST_MODELS_MAPPER.get(args.model_name)()
+    #decision_tree_regressor = GridSearchCV(decision_tree_model, params[args.model_name])
+    cat.fit(X_train, y_train, verbose=False)
+    #cat.fit(X_train, y_train, verbose=False, plot=True)
     #cat1 = CATBOOST_MODELS_MAPPER.get(args.model_name)()
     #cat = cat1.grid_search(grid, X=X_train, y=y_train)
     #cat.fit(X_train, y_train, verbose=False, plot=True)
@@ -78,9 +94,27 @@ if __name__ == '__main__':
     predicted_values = np.squeeze(cat.predict(X_test))
 
     print(cat.score(X_test, y_test))
-    print(cat.best_params_)
+    print(cat.get_params)
 
     print("Baseline MAE: ", mean_absolute_error(y_test, y_pred_baseline))
     print("Model MAE: ", mean_absolute_error(y_test, predicted_values))
+
+    #model.fit(X, y, cat_features=[2, 3])
+
+    feature_importance = cat.get_feature_importance()
+    feature_names = X_train.columns
+
+    # Display feature importance
+    for name, importance in zip(feature_names, feature_importance):
+        print(f"Feature: {name}, Importance: {importance:.2f}")
+
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    plt.figure(figsize=(10, 6))
+    sns.barplot(x=feature_importance, y=feature_names, color = 'b')
+    plt.title('Feature Importance')
+    plt.xlabel('Importance')
+    plt.ylabel('Features')
+    plt.show()
 
     dump(cat, output_model_joblib_path)

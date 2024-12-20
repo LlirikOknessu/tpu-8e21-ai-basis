@@ -20,5 +20,9 @@ decision_tree:
     max_depth: [ 2, 4, 6, 7 ]
     min_samples_split: [ 2, 3, 4, 10, 15 ]
     min_samples_leaf: [ 1, 2, 3, 4, 18, 48 ]
-cat_boosting:
+cat_boost:
   model_name: 'CatBoostRegressor'
+  parameters:
+    'depth': [6, 8, 10],
+    'learning_rate': [ 0.01, 0.05, 0.1 ],
+    'iterations': [ 30, 50, 100, 200 ]
