@@ -47,13 +47,12 @@ if __name__ == '__main__':
     reg = CATBOOST_MODELS_MAPPER.get(args.model_name)(**best_params)
     reg = reg.fit(X_train, y_train, verbose=False)
 
+    predicted_values = np.squeeze(reg.predict(X_train))
 
-    predicted_values = np.squeeze(reg.predict(X_train_name))
-
-    print(reg.score(X_train_name, y_train_name))
+    print(reg.score(X_train, y_train))
     print(reg.get_params)
 
-    print("Model MAE: ", mean_absolute_error(y_train_name, predicted_values))
+    print("Model MAE: ", mean_absolute_error(y_train, predicted_values))
 
     feature_importance = reg.get_feature_importance()
     feature_names = X_train.columns

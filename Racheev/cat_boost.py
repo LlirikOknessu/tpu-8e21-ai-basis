@@ -108,6 +108,7 @@ if __name__ == '__main__':
     for name, importance in zip(feature_names, feature_importance):
         print(f"Feature: {name}, Importance: {importance:.2f}")
 
+    '''
     import matplotlib.pyplot as plt
     import seaborn as sns
     plt.figure(figsize=(10, 6))
@@ -115,6 +116,8 @@ if __name__ == '__main__':
     plt.title('Feature Importance')
     plt.xlabel('Importance')
     plt.ylabel('Features')
+    plt.grid()
     plt.show()
+    '''
 
     dump(cat, output_model_joblib_path)

@@ -934,3 +934,117 @@ stages:
       hash: md5
       md5: 215577be72a32267abebce6967b7536b
       size: 1103807
+  cat_boost:
+    cmd: python cat_boost.py -id data/prepared/ -od data/models -bm data/models/LinearRegression_prod.joblib
+      -mn CatBoostRegressor
+    deps:
+    - path: cat_boost.py
+      hash: md5
+      md5: fafdd861783ac88ea7da9b75f886d94b
+      size: 4462
+    - path: data/prepared
+      hash: md5
+      md5: d9416719ab43785af90ae8f057ce686f.dir
+      size: 324604
+      nfiles: 8
+    params:
+      params.yaml:
+        cat_boost:
+          model_name: CatBoostRegressor
+          parameters:
+            depth:
+            - 6
+            - 8
+            - 10
+            learning_rate:
+            - 0.01
+            - 0.05
+            - 0.1
+            iterations:
+            - 30
+            - 50
+            - 100
+            - 200
+    outs:
+    - path: data/models/CatBoostRegressor.joblib
+      hash: md5
+      md5: 8f6c7395d7e35349a49d0fc861e96f2b
+      size: 1103807
+  cat_boost_validation:
+    cmd: python cat_boost_validation.py -id data/prepared/ -im data/models/CatBoostRegressor.joblib
+      -bm data/models/LinearRegression_prod.joblib -mn CatBoostRegressor
+    deps:
+    - path: cat_boost_validation.py
+      hash: md5
+      md5: cd67ed4a11c8b62fd5d678c603f03f7e
+      size: 1938
+    - path: data/models/CatBoostRegressor.joblib
+      hash: md5
+      md5: 8f6c7395d7e35349a49d0fc861e96f2b
+      size: 1103807
+    - path: data/models/LinearRegression_prod.joblib
+      hash: md5
+      md5: 4ba526e7e53d1f9c476b538a75a4bab7
+      size: 1087
+    - path: data/prepared/
+      hash: md5
+      md5: d9416719ab43785af90ae8f057ce686f.dir
+      size: 324604
+      nfiles: 8
+    params:
+      params.yaml:
+        cat_boost:
+          model_name: CatBoostRegressor
+          parameters:
+            depth:
+            - 6
+            - 8
+            - 10
+            learning_rate:
+            - 0.01
+            - 0.05
+            - 0.1
+            iterations:
+            - 30
+            - 50
+            - 100
+            - 200
+  cat_boost_prod_version:
+    cmd: python cat_boost_full.py -id data/prepared/ -od data/models/ -mn CatBoostRegressor
+    deps:
+    - path: cat_boost_full.py
+      hash: md5
+      md5: 9c9862135d27311aac4019b6b7b9a1f3
+      size: 2757
+    - path: data/models/CatBoostRegressor.joblib
+      hash: md5
+      md5: 8f6c7395d7e35349a49d0fc861e96f2b
+      size: 1103807
+    - path: data/prepared
+      hash: md5
+      md5: d9416719ab43785af90ae8f057ce686f.dir
+      size: 324604
+      nfiles: 8
+    params:
+      params.yaml:
+        cat_boost:
+          model_name: CatBoostRegressor
+          parameters:
+            depth:
+            - 6
+            - 8
+            - 10
+            learning_rate:
+            - 0.01
+            - 0.05
+            - 0.1
+            iterations:
+            - 30
+            - 50
+            - 100
+            - 200
+    outs:
+    - path: data/models/CatBoostRegressor_prod.joblib
+      hash: md5
+      md5: 0e890f74eade470a217f43f770a3c45b
+      size: 1457025
