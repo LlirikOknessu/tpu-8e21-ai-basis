@@ -96,7 +96,7 @@ def set_brand(car_table: pd.DataFrame) -> pd.DataFrame:
     return car_table
 
 
-def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3: pd.DataFrame) -> pd.DataFrame:
+def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3: pd.DataFrame, short = True) -> pd.DataFrame:
     # Очистка и объединение данных
 
     # Удаление дублирующихся строк
@@ -160,9 +160,9 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
     #
     # Удалим столбец name, так как он имеет много различных текстовых данных, которые были обработаны в столбец brand
     car_table.drop(columns='name', inplace=True)
-    car_table['max_power'] = car_table['max_power'].fillna("0")
+    car_table['max_power'] = car_table['max_power'].fillna("-1")
     car_table['mpow_val'] = car_table['max_power'].apply(words, word_numb=1)
-    car_table['mpow_val'] = car_table['mpow_val'].str.replace('bhp', '0')
+    car_table['mpow_val'] = car_table['mpow_val'].str.replace('bhp', '-1')
     car_table['mpow_val'] = car_table['mpow_val'].astype(float)
     #step = 2.5 * math.pow(10, 1)
     #car_table['mpow_val_d'] = (((car_table['mpow_val']) + step / 2) // step) * step
@@ -172,10 +172,16 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
 
     car_table.drop(columns=['km_driven', 'seats'], inplace=True)
     car_table.drop(columns=['mileage', 'engine', 'max_power', 'torque'], inplace=True)
-    # Удаление строк без мощности
-    car_table = car_table[car_table['mpow_val'] != 0]
-    car_table['mpow_val'] = car_table[car_table['mpow_val'] != 0]['mpow_val'].apply(np.round).astype(int)
-    #car_table = car_table[car_table['mpow_val_d'] != 0]
+
+    #car_table['mpow_val'] = car_table['mpow_val'].fillna(-1)
+
+    if (short == True):
+        # Удаление строк без мощности
+        car_table = car_table[car_table['mpow_val'] > 0]
+        car_table['mpow_val'] = car_table[car_table['mpow_val'] > 0]['mpow_val'].apply(np.round).astype(int)
+        #
+    else:
+        car_table['mpow_val'] = car_table['mpow_val'].apply(np.round).astype(int)
 
     car_table = to_categorical(car_table)
     #нормализация
@@ -220,7 +226,7 @@ if __name__ == '__main__':
     car_table_2 = pd.read_csv(src_table[1], delimiter=',')
     car_table_3 = pd.read_csv(src_table[2], delimiter=',')
     #print(car_table_1.info(), car_table_2.info(), car_table_3.info())
-    car_table_clear = clean_data(car_table_1, car_table_2, car_table_3)
+    car_table_clear = clean_data(car_table_1, car_table_2, car_table_3, True)
     print('Обработанное')
     print(car_table_clear.info())
     print(car_table_clear.describe(include = 'all'))

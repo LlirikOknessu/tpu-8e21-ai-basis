@@ -1,2 +1,5 @@
 [core]
     no_scm = false
+    remote = remote_data
+['remote "remote_data"']
+    url = ../arch

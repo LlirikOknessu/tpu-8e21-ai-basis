@@ -14,7 +14,7 @@ CATBOOST_MODELS_MAPPER = {'CatBoostRegressor': CatBoostRegressor}
 
 # Set the best parameters that you get on training stage for all used models
 CATBOOST_MODELS_BEST_PARAMETERS = {
-    'CatBoostRegressor': {'depth': 10, 'learning_rate': 0.05, 'iterations': 100}}
+    'CatBoostRegressor': {'depth': 6, 'iterations': 200, 'learning_rate': 0.1}}
 
 def parser_args_for_sac():
     parser = argparse.ArgumentParser(description='Paths parser')

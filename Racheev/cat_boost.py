@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     with open(args.params, 'r') as f:
         params_all = yaml.safe_load(f)
-    params = params_all['cat_boost']
+    parameters = params_all['cat_boost']
 
 
     input_dir = Path(args.input_dir)
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     y_test = pd.read_csv(y_test_name)
 
     cat = CATBOOST_MODELS_MAPPER.get(args.model_name)()
-
+    cat = GridSearchCV(estimator=cat, param_grid=parameters[args.model_name])
     '''
     params = {"iterations": 100,
               "depth": 2,
@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
     cat = GridSearchCV(estimator=cat, param_grid=parameters, cv=2, n_jobs=-1)
     '''
-    random.seed(67)
+
     #decision_tree_model = CATBOOST_MODELS_MAPPER.get(args.model_name)()
     #decision_tree_regressor = GridSearchCV(decision_tree_model, params[args.model_name])
     cat.fit(X_train, y_train, verbose=False)
@@ -94,30 +94,14 @@ if __name__ == '__main__':
     predicted_values = np.squeeze(cat.predict(X_test))
 
     print(cat.score(X_test, y_test))
-    print(cat.get_params)
+    #print(cat.get_params)
+    print(cat.best_params_)
 
     print("Baseline MAE: ", mean_absolute_error(y_test, y_pred_baseline))
     print("Model MAE: ", mean_absolute_error(y_test, predicted_values))
 
     #model.fit(X, y, cat_features=[2, 3])
 
-    feature_importance = cat.get_feature_importance()
-    feature_names = X_train.columns
 
-    # Display feature importance
-    for name, importance in zip(feature_names, feature_importance):
-        print(f"Feature: {name}, Importance: {importance:.2f}")
-
-    '''
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    plt.figure(figsize=(10, 6))
-    sns.barplot(x=feature_importance, y=feature_names, color = 'b')
-    plt.title('Feature Importance')
-    plt.xlabel('Importance')
-    plt.ylabel('Features')
-    plt.grid()
-    plt.show()
-    '''
 
     dump(cat, output_model_joblib_path)
