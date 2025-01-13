@@ -19,7 +19,7 @@ mse = mean_squared_error(y_test, y_pred)
 r2 = r2_score(y_test, y_pred)
 
 print(f"MSE: {mse:.2f}")
-print(f"R2 Score: {r2:.2f}") #прошлый раз была хуйня, надо исправить
+print(f"R2 Score: {r2:.2f}")
 
 plt.figure(figsize=(10, 6))
 plt.scatter(y_test, y_pred, alpha=0.6, edgecolor='k')
@@ -31,9 +31,3 @@ plt.grid(True, linestyle='--', alpha=0.7)
 plt.tight_layout()
 plt.savefig('Kostin/data/linear_regression_results.png', dpi=300)
 plt.show()
-
-'''
-перед коммитом чистить файлы
-еще раз почистить вбросовые
-по новой линрег сделать
-'''
