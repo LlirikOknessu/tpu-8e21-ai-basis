@@ -7,7 +7,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 
 sns.set_theme(color_codes=True)
-df_filtered = pd.read_csv('Kostin/data/filtered_insurance.csv')
+df_filtered = pd.read_csv('filtered_insurance.csv')
 df_encoded = pd.get_dummies(df_filtered, columns=['sex', 'smoker', 'region'], drop_first=True)
 X = df_encoded.drop(columns=['charges'])
 y = df_encoded['charges']
@@ -29,5 +29,5 @@ plt.xlabel('Реальные значения', fontsize=14)
 plt.ylabel('Предсказанные значения', fontsize=14)
 plt.grid(True, linestyle='--', alpha=0.7)
 plt.tight_layout()
-plt.savefig('Kostin/data/linear_regression_results.png', dpi=300)
+plt.savefig('linear_regression_results.png', dpi=300)
 plt.show()
