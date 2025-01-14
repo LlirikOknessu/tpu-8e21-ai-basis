@@ -23,6 +23,13 @@ decision_tree:
 cat_boost:
   model_name: 'CatBoostRegressor'
   CatBoostRegressor:
-    'depth': [4, 6, 8, 10]
+    'depth': [4, 6, 8]
     'learning_rate': [ 0.01, 0.05, 0.1 ]
     'iterations': [ 30, 50, 100, 200 ]
+neural_net:
+  model_name: 'NeuralNet'
+  NeuralNet:
+    'BATCH_SIZE' : 64
+    'BUFFER_SIZE' : 128
+    'LEARNING_RATE' : 0.005
+    'EPOCHS' : 50

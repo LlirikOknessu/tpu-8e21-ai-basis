@@ -23,8 +23,8 @@ def to_categorical(car_table: pd.DataFrame):
     #car_table[df.select_dtypes('object').columns] = df.select_dtypes('object').astype('category')
     car_table.brand = pd.Categorical(car_table.brand)
     car_table = car_table.assign(brand=car_table.brand.cat.codes)
-    car_table.km_dr_gr = pd.Categorical(car_table.km_dr_gr)
-    car_table = car_table.assign(km_dr_gr=car_table.km_dr_gr.cat.codes)
+    #car_table.km_dr_gr = pd.Categorical(car_table.km_dr_gr)
+    #car_table = car_table.assign(km_dr_gr=car_table.km_dr_gr.cat.codes)
     #car_table.fuel = pd.Categorical(car_table.fuel)
     #car_table = car_table.assign(fuel=car_table.fuel.cat.codes)
     car_table['fuel'] = car_table['fuel'].replace(['Petrol', 'Diesel', 'Gaz'], ['1', '0', '2']).astype(np.int8)
@@ -73,8 +73,12 @@ def set_brand(car_table: pd.DataFrame) -> pd.DataFrame:
     car_table['brand'] = car_table['brand'].replace(['s', 'swift', 'sx4', 'verna', 'vitara', 'xcent', 'wagon'],
                                                     ['Suzuki', 'Maruti', 'Suzuki', 'Hyundai', 'Suzuki', 'Hyundai',
                                                      'Maruti'])
-    ## Группировка марок
     car_table['brand'] = car_table['brand'].replace(['Maruti'], ['Suzuki'])
+    car_table = car_table.drop(car_table[car_table['brand'] == 'UM'].index)
+    car_table = car_table.reset_index()
+    del car_table['index']
+    ## Группировка марок
+    '''
     car_table['brand'] = car_table['brand'].replace(
         ['Datsun', 'Ashok', 'Fiat', 'Chevrolet', 'UM', 'Hindustan', 'Hyosung', 'KTM', 'Royal Enfield', 'Opel', 'Daewoo',
          'Yamaha', 'Peugeot', 'Bajaj', 'TVS', 'Dongfeng'], 'Chevrolet')
@@ -83,14 +87,17 @@ def set_brand(car_table: pd.DataFrame) -> pd.DataFrame:
     car_table['brand'] = car_table['brand'].replace(
         ['MG', 'Jeep', 'Isuzu', 'Kia', 'Toyota', 'Mitsubishi', 'Force', 'Mahindra', 'Honda', 'Skoda', 'Ford',
          'Volkswagen', 'Nissan', 'Hyundai', 'Renault', 'Suzuki', 'Tata'], 'Suzuki')
-
+    '''
     car_brand = car_table.groupby('brand')['selling_price'].mean().reset_index()
     car_brand = car_brand.sort_values(by='selling_price', ascending=False).reset_index()
     car_brand.drop(columns='index', inplace=True)
     brand_list = car_brand['brand'].to_list()
+    print(brand_list)
     brandn_list = car_brand.index.to_list()
+    print(brandn_list)
     car_table['brand'] = car_table['brand'].replace(brand_list, brandn_list)
-    car_table['brand'] = pd.cut(car_table['brand'], 7)
+    #car_table['brand'].astype(np.int8)
+    #car_table['brand'] = pd.cut(car_table['brand'], 7)
     #car_table['brand'] = car_table['brand'].replace(['BMW', 'Suzuki', 'Chevrolet'],
     #                                                ['High class', 'Middle class', 'Low class'])
     return car_table
@@ -133,11 +140,30 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
     #Удаление дублирования индексов
     car_table.reset_index(inplace=True)
     car_table.drop(columns='index', inplace = True)
+    # Удаление дублирующихся строк с частичной пустотой
+    col_list = car_table.columns.to_list()
+    dupl = car_table[col_list[:8]].duplicated(keep=False)
+    car_table = car_table.drop(car_table[dupl][car_table[col_list[8:]].isna().any(axis=1)].index)
+    car_table = car_table.reset_index()
+    del car_table['index']
 
+    car_table['selling_price'] = car_table.groupby(col_list[:2] + col_list[3:8])['selling_price'].transform(
+        lambda x: (np.int64)(np.round(x.mean())))
+    car_table.drop_duplicates(inplace=True, ignore_index=True)
+    dupl_1 = car_table[col_list[:8]].duplicated(keep=False)
+    car_table = car_table.drop(car_table[dupl_1][car_table[col_list[8:]].isna().any(axis=1)].index)
+    car_table = car_table.reset_index()
+    del car_table['index']
+    car_table = car_table.drop([4270, 5781, 4907])
+    car_table.iloc[7398, 8] = '25.0 kmpl'
+    car_table = car_table.reset_index()
+    del car_table['index']
+    print(car_table.info())
     #Удаление выбросов цены
     car_table.drop(car_table[car_table['selling_price'] > 2000000 ].index, inplace=True)   #2000000  1200000
     car_table.drop(car_table[car_table['selling_price'] < 40000].index, inplace=True)    #40000  85000
-
+    car_table = car_table.reset_index()
+    del car_table['index']
     #Марка автомобилей обработка
     car_table = set_brand(car_table)
     # Преобразование года автомобиля
@@ -148,12 +174,28 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
     car_table['fuel'] = car_table['fuel'].replace(['CNG', 'LPG'], 'Gaz')
 
     #Редактирование столбца пройденного расстояния
+    #
+    car_table['km_dr_gr'] = np.where(car_table['km_driven'] > 0, np.log(car_table['km_driven'])/np.log(10), 0)
+    '''
+    car_table['km_dr_gr'] = pd.qcut(car_table['km_driven'], 3)
+    qkm = car_table.groupby(['km_dr_gr'])['selling_price'].mean()
+    qkm = qkm.reset_index()
+    #del qkm['index']
+    car_table['km_dr_gr'] = car_table['km_dr_gr'].astype(str)
+    car_table['km_dr_gr'] = car_table['km_dr_gr'].replace(qkm.index.astype('str').to_list(),
+                                                          [35000, 60000, 100000])
+    car_table['km_dr_gr'] = car_table['km_dr_gr'].astype(np.int64)
+
+    
     car_table['km_dr_gr'] = pd.qcut(car_table['km_driven'], 4)
     qkm = car_table.groupby(['km_dr_gr'])['selling_price'].mean()
-    qkm.reset_index()
+    qkm = qkm.reset_index()
+    #del qkm['index']
     car_table['km_dr_gr'] = car_table['km_dr_gr'].astype(str)
     car_table['km_dr_gr'] = car_table['km_dr_gr'].replace(qkm.index.astype('str').to_list(), [35000,60000,100000,150000])
     car_table['km_dr_gr'] = car_table['km_dr_gr'].astype(np.int64)
+    '''
+
 
     # Объёдинения диллеров в единых
     car_table['seller_type'] = car_table['seller_type'].replace(['Trustmark Dealer'], ['Dealer'])
@@ -229,6 +271,7 @@ if __name__ == '__main__':
     car_table_clear = clean_data(car_table_1, car_table_2, car_table_3, True)
     print('Обработанное')
     print(car_table_clear.info())
+    print(car_table_clear.nunique())
     print(car_table_clear.describe(include = 'all'))
 
     X, y = car_table_clear.drop("selling_price", axis=1), car_table_clear['selling_price']
