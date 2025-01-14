@@ -967,8 +967,8 @@ stages:
     deps:
     - path: cat_boost.py
       hash: md5
-      md5: e1d5858e9aa120eb4a688800546fe252
-      size: 3981
+      md5: 8bc67eacb379ae06eac8480644f84c8e
+      size: 3977
     - path: data/prepared
       hash: md5
       md5: 7ecfa8988994fcea85d926af86077089.dir
@@ -995,7 +995,7 @@ stages:
     outs:
     - path: data/models/CatBoostRegressor.joblib
       hash: md5
-      md5: 1f2d4a1e1d355019f84a5965392f954a
+      md5: cc79e66949fc889cf98f6e09639953a0
       size: 227846
   cat_boost_validation:
     cmd: python cat_boost_validation.py -id data/prepared/ -im data/models/CatBoostRegressor.joblib
@@ -1007,7 +1007,7 @@ stages:
       size: 1938
     - path: data/models/CatBoostRegressor.joblib
       hash: md5
-      md5: 1f2d4a1e1d355019f84a5965392f954a
+      md5: cc79e66949fc889cf98f6e09639953a0
       size: 227846
     - path: data/models/LinearRegression_prod.joblib
       hash: md5
@@ -1045,7 +1045,7 @@ stages:
       size: 2755
     - path: data/models/CatBoostRegressor.joblib
       hash: md5
-      md5: 1f2d4a1e1d355019f84a5965392f954a
+      md5: cc79e66949fc889cf98f6e09639953a0
       size: 227846
     - path: data/prepared
       hash: md5
@@ -1073,5 +1073,32 @@ stages:
     outs:
     - path: data/models/CatBoostRegressor_prod.joblib
       hash: md5
-      md5: fee6469cfc38ed155b08f8bd1f238051
+      md5: 2e7bb4fe3c7f1c114474444055131b3c
       size: 227825
+  neural_net:
+    cmd: python neural_net.py -id data/prepared/ -od data/models -bm data/models/LinearRegression_prod.joblib
+      -mn NeuralNet
+    deps:
+    - path: data/prepared
+      hash: md5
+      md5: 7ecfa8988994fcea85d926af86077089.dir
+      size: 508958
+      nfiles: 8
+    - path: neural_net.py
+      hash: md5
+      md5: 31e29d1b71117c3cfa0cf390e85434dd
+      size: 9268
+    params:
+      params.yaml:
+        neural_net:
+          model_name: NeuralNet
+          NeuralNet:
+            BATCH_SIZE: 64
+            BUFFER_SIZE: 128
+            LEARNING_RATE: 0.005
+            EPOCHS: 50
+    outs:
+    - path: data/models/NeuralNet.keras
+      hash: md5
+      md5: 060d93e45dcfad817e836e360299ce3b
+      size: 23342

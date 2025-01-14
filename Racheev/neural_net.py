@@ -82,7 +82,7 @@ if __name__ == '__main__':
     logs_path.mkdir(parents=True)
 
     output_dir.mkdir(exist_ok=True, parents=True)
-    output_model_joblib_path = output_dir / (args.model_name + '.joblib')
+    output_model_keras_path = output_dir / (args.model_name + '.keras')
 
     X_train_name = input_dir / 'X_train.csv'
     y_train_name = input_dir / 'y_train.csv'
@@ -190,7 +190,7 @@ if __name__ == '__main__':
             profiler_outdir=str(logdir) ###################
         )
 
-    NN_model.save('./data/models/mymodel.keras')########################################################
+    NN_model.save(output_model_keras_path)#
 
     '''
     loaded_model = keras.models.load_model('./data/models/mymodel.keras', NeuralNet_MODELS_MAPPER)

@@ -106,7 +106,7 @@ stages:
       - neural_net.py
       - data/prepared
     outs:
-      - data/models/${neural_net.model_name}.joblib
+      - data/models/${neural_net.model_name}.keras
     params:
       - neural_net
   neural_net_validation:
