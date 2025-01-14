@@ -1,0 +1,34 @@
+stages:
+  # (опционально) Стадия EDA
+  eda:
+    cmd: python scripts/eda.py --input data/cleaned_data.csv
+    deps:
+      - scripts/eda.py
+      - data/cleaned_data.csv
+    outs: []
+    # можно указать, что скрипт не создает особых аутов (только графики),
+    # или же добавить каталоги с графиками в outs, если хотите трекать их через DVC
+
+  preprocess:
+    cmd: python scripts/preprocess.py --input raw/insurance.csv --output data/cleaned_data.csv
+    deps:
+      - scripts/preprocess.py
+      - raw/insurance.csv
+    outs:
+      - data/cleaned_data.csv
+
+  train_reg:
+    cmd: python scripts/train_regression.py --input data/cleaned_data.csv --output models/model_reg.pkl
+    deps:
+      - scripts/train_regression.py
+      - data/cleaned_data.csv
+    outs:
+      - models/model_reg.pkl
+
+  train_clf:
+    cmd: python scripts/train_classification.py --input data/cleaned_data.csv --output models/model_clf.pkl
+    deps:
+      - scripts/train_classification.py
+      - data/cleaned_data.csv
+    outs:
+      - models/model_clf.pkl

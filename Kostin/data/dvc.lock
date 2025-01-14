@@ -1,0 +1,63 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: python scripts/preprocess.py --input raw/insurance.csv --output data/cleaned_data.csv
+    deps:
+    - path: raw/insurance.csv
+      hash: md5
+      md5: 6bf21e7594c412233b0fe6d6641b3e69
+      size: 50514
+    - path: scripts/preprocess.py
+      hash: md5
+      md5: 69368a7005c91f0fc5259e858cc71502
+      size: 2279
+    outs:
+    - path: data/cleaned_data.csv
+      hash: md5
+      md5: 076a8ffbe97de8ba1bf4849036d9e5dd
+      size: 44472
+  eda:
+    cmd: python scripts/eda.py --input data/cleaned_data.csv
+    deps:
+    - path: data/cleaned_data.csv
+      hash: md5
+      md5: 076a8ffbe97de8ba1bf4849036d9e5dd
+      size: 44472
+    - path: scripts/eda.py
+      hash: md5
+      md5: 1f6745b9ca9788747f83e9ed7c305bb8
+      size: 2679
+  train_reg:
+    cmd: python scripts/train_regression.py --input data/cleaned_data.csv --output
+      models/model_reg.pkl
+    deps:
+    - path: data/cleaned_data.csv
+      hash: md5
+      md5: 076a8ffbe97de8ba1bf4849036d9e5dd
+      size: 44472
+    - path: scripts/train_regression.py
+      hash: md5
+      md5: 2f347c3102d76301546f01bf699d3060
+      size: 3979
+    outs:
+    - path: models/model_reg.pkl
+      hash: md5
+      md5: 46ba8ecd15beab92f6a23401cffdb28e
+      size: 1092679
+  train_clf:
+    cmd: python scripts/train_classification.py --input data/cleaned_data.csv --output
+      models/model_clf.pkl
+    deps:
+    - path: data/cleaned_data.csv
+      hash: md5
+      md5: 076a8ffbe97de8ba1bf4849036d9e5dd
+      size: 44472
+    - path: scripts/train_classification.py
+      hash: md5
+      md5: 525928be218d054930e604cae6809fcc
+      size: 3706
+    outs:
+    - path: models/model_clf.pkl
+      hash: md5
+      md5: c5f17d757d7889f024f380f7e2f2609c
+      size: 1110385
