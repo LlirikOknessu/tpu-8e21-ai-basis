@@ -1,15 +1,5 @@
 stages:
-  # (опционально) Стадия EDA
-  eda:
-    cmd: python scripts/eda.py --input data/cleaned_data.csv
-    deps:
-      - scripts/eda.py
-      - data/cleaned_data.csv
-    outs: []
-    # можно указать, что скрипт не создает особых аутов (только графики),
-    # или же добавить каталоги с графиками в outs, если хотите трекать их через DVC
-
-  preprocess:
+  data_preparation:
     cmd: python scripts/preprocess.py --input raw/insurance.csv --output data/cleaned_data.csv
     deps:
       - scripts/preprocess.py
@@ -17,18 +7,57 @@ stages:
     outs:
       - data/cleaned_data.csv
 
-  train_reg:
-    cmd: python scripts/train_regression.py --input data/cleaned_data.csv --output models/model_reg.pkl
+  eda:
+    cmd: python scripts/eda.py --input data/cleaned_data.csv
     deps:
-      - scripts/train_regression.py
+      - scripts/eda.py
       - data/cleaned_data.csv
-    outs:
-      - models/model_reg.pkl
+    outs: []
 
-  train_clf:
-    cmd: python scripts/train_classification.py --input data/cleaned_data.csv --output models/model_clf.pkl
+  train_linear:
+    cmd: python scripts/train_linear.py --input data/cleaned_data.csv --output models/linear_model.pkl
     deps:
-      - scripts/train_classification.py
+      - scripts/train_linear.py
       - data/cleaned_data.csv
     outs:
-      - models/model_clf.pkl
+      - models/linear_model.pkl
+
+  train_linear_validation:
+    cmd: python scripts/train_linear_validation.py --model models/linear_model.pkl --input data/cleaned_data.csv
+    deps:
+      - scripts/train_linear_validation.py
+      - models/linear_model.pkl
+      - data/cleaned_data.csv
+    outs: []
+
+  train_linear_prod:
+    cmd: python scripts/train_linear_prod.py --src_model models/linear_model.pkl --prod_model models/prod/linear_model.pkl
+    deps:
+      - scripts/train_linear_prod.py
+      - models/linear_model.pkl
+    outs:
+      - models/prod/linear_model.pkl
+
+  train_decision_tree:
+    cmd: python scripts/train_decision_tree.py --input data/cleaned_data.csv --out_model models/decision_tree.pkl
+    deps:
+      - scripts/train_decision_tree.py
+      - data/cleaned_data.csv
+    outs:
+      - models/decision_tree.pkl
+
+  train_catboost:
+    cmd: python scripts/train_catboost.py --input data/cleaned_data.csv --model_path models/cat_boost.pkl
+    deps:
+      - scripts/train_catboost.py
+      - data/cleaned_data.csv
+    outs:
+      - models/cat_boost.pkl
+
+  train_mlp:
+    cmd: python scripts/train_mlp.py --input data/cleaned_data.csv --model_path models/mlp.pkl
+    deps:
+      - scripts/train_mlp.py
+      - data/cleaned_data.csv
+    outs:
+      - models/mlp.pkl

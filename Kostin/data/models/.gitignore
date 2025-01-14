@@ -1,2 +1,6 @@
 /model_reg.pkl
 /model_clf.pkl
+/linear_model.pkl
+/decision_tree.pkl
+/cat_boost.pkl
+/mlp.pkl

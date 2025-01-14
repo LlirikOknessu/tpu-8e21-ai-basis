@@ -25,8 +25,8 @@ stages:
       size: 44472
     - path: scripts/eda.py
       hash: md5
-      md5: 1f6745b9ca9788747f83e9ed7c305bb8
-      size: 2679
+      md5: efa9e3c74c6a2f5848e06e2ce27934ad
+      size: 2439
   train_reg:
     cmd: python scripts/train_regression.py --input data/cleaned_data.csv --output
       models/model_reg.pkl
@@ -61,3 +61,118 @@ stages:
       hash: md5
       md5: c5f17d757d7889f024f380f7e2f2609c
       size: 1110385
+  data_preparation:
+    cmd: python scripts/preprocess.py --input raw/insurance.csv --output data/cleaned_data.csv
+    deps:
+    - path: raw/insurance.csv
+      hash: md5
+      md5: 6bf21e7594c412233b0fe6d6641b3e69
+      size: 50514
+    - path: scripts/preprocess.py
+      hash: md5
+      md5: 53975bc46f5a717bac5851c3d22d03ce
+      size: 1541
+    outs:
+    - path: data/cleaned_data.csv
+      hash: md5
+      md5: 076a8ffbe97de8ba1bf4849036d9e5dd
+      size: 44472
+  train_linear:
+    cmd: python scripts/train_linear.py --input data/cleaned_data.csv --output models/linear_model.pkl
+    deps:
+    - path: data/cleaned_data.csv
+      hash: md5
+      md5: 076a8ffbe97de8ba1bf4849036d9e5dd
+      size: 44472
+    - path: scripts/train_linear.py
+      hash: md5
+      md5: 5e2094c8eadbec644c6b2e73556242db
+      size: 1427
+    outs:
+    - path: models/linear_model.pkl
+      hash: md5
+      md5: ea3be846e0eab90945bfdfc0e2131626
+      size: 1136
+  train_linear_validation:
+    cmd: python scripts/train_linear_validation.py --model models/linear_model.pkl
+      --input data/cleaned_data.csv
+    deps:
+    - path: data/cleaned_data.csv
+      hash: md5
+      md5: 076a8ffbe97de8ba1bf4849036d9e5dd
+      size: 44472
+    - path: models/linear_model.pkl
+      hash: md5
+      md5: ea3be846e0eab90945bfdfc0e2131626
+      size: 1136
+    - path: scripts/train_linear_validation.py
+      hash: md5
+      md5: 09baeafac88c2c66b22b7fbcd9510ebe
+      size: 1132
+  train_linear_prod:
+    cmd: python scripts/train_linear_prod.py --src_model models/linear_model.pkl --prod_model
+      models/prod/linear_model.pkl
+    deps:
+    - path: models/linear_model.pkl
+      hash: md5
+      md5: ea3be846e0eab90945bfdfc0e2131626
+      size: 1136
+    - path: scripts/train_linear_prod.py
+      hash: md5
+      md5: 96bc87a288cfeaa716d748d8ed15cb53
+      size: 590
+    outs:
+    - path: models/prod/linear_model.pkl
+      hash: md5
+      md5: ea3be846e0eab90945bfdfc0e2131626
+      size: 1136
+  train_decision_tree:
+    cmd: python scripts/train_decision_tree.py --input data/cleaned_data.csv --out_model
+      models/decision_tree.pkl
+    deps:
+    - path: data/cleaned_data.csv
+      hash: md5
+      md5: 076a8ffbe97de8ba1bf4849036d9e5dd
+      size: 44472
+    - path: scripts/train_decision_tree.py
+      hash: md5
+      md5: 0fab8729b3ffb6c28871237b89959f39
+      size: 1347
+    outs:
+    - path: models/decision_tree.pkl
+      hash: md5
+      md5: bdafbf0b17ed2924ad2166e3ca87820f
+      size: 6161
+  train_catboost:
+    cmd: python scripts/train_catboost.py --input data/cleaned_data.csv --model_path
+      models/cat_boost.pkl
+    deps:
+    - path: data/cleaned_data.csv
+      hash: md5
+      md5: 076a8ffbe97de8ba1bf4849036d9e5dd
+      size: 44472
+    - path: scripts/train_catboost.py
+      hash: md5
+      md5: 83fb1e02d34721f1b0bd38f8064f67e4
+      size: 1338
+    outs:
+    - path: models/cat_boost.pkl
+      hash: md5
+      md5: 80f258e91d76e9a02ae321daf21437f3
+      size: 1092679
+  train_mlp:
+    cmd: python scripts/train_mlp.py --input data/cleaned_data.csv --model_path models/mlp.pkl
+    deps:
+    - path: data/cleaned_data.csv
+      hash: md5
+      md5: 076a8ffbe97de8ba1bf4849036d9e5dd
+      size: 44472
+    - path: scripts/train_mlp.py
+      hash: md5
+      md5: 1862935472174f6c816af2969e68a95c
+      size: 1595
+    outs:
+    - path: models/mlp.pkl
+      hash: md5
+      md5: 6ffe29a0f9422afd5c930ed9e4c11588
+      size: 132160

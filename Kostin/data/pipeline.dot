@@ -1,0 +1,21 @@
+strict digraph {
+"data_preparation";
+"eda";
+"train_linear";
+"train_linear_validation";
+"train_linear_prod";
+"train_decision_tree";
+"train_catboost";
+"train_mlp";
+"raw/insurance.csv.dvc";
+"data_preparation" -> "eda";
+"data_preparation" -> "train_linear";
+"data_preparation" -> "train_linear_validation";
+"data_preparation" -> "train_decision_tree";
+"data_preparation" -> "train_catboost";
+"data_preparation" -> "train_mlp";
+"train_linear" -> "train_linear_validation";
+"train_linear" -> "train_linear_prod";
+"raw/insurance.csv.dvc" -> "data_preparation";
+}
+
