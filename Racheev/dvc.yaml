@@ -106,15 +106,15 @@ stages:
       - neural_net.py
       - data/prepared
     outs:
-      - data/models/${NeuralNet.model_name}.joblib
+      - data/models/${neural_net.model_name}.joblib
     params:
       - neural_net
   neural_net_validation:
-    cmd: python neural_net_validation.py -id data/prepared/ -im data/models/${NeuralNet.model_name}.joblib -bm data/models/${linear_regression.model_name}_prod.joblib -mn ${neural_net.model_name}
+    cmd: python neural_net_validation.py -id data/prepared/ -im data/models/${neural_net.model_name}.joblib -bm data/models/${linear_regression.model_name}_prod.joblib -mn ${neural_net.model_name}
     deps:
       - neural_net_validation.py
       - data/prepared/
-      - data/models/${NeuralNet.model_name}.joblib
+      - data/models/${neural_net.model_name}.joblib
       - data/models/${linear_regression.model_name}_prod.joblib
     params:
       - neural_net
@@ -123,8 +123,8 @@ stages:
     deps:
       - neural_net_full.py
       - data/prepared
-      - data/models/${NeuralNet.model_name}.joblib
+      - data/models/${neural_net.model_name}.joblib
     outs:
-      - data/models/${NeuralNet.model_name}_prod.joblib
+      - data/models/${neural_net.model_name}_prod.joblib
     params:
       - neural_net
