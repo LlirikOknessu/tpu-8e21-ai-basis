@@ -2,6 +2,7 @@ import argparse
 import os
 import joblib
 import pandas as pd
+import tensorflow as tf
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -80,6 +81,7 @@ def main():
     parser.add_argument("--model_path", required=False, help="Alias for --output.")
     parser.add_argument("--metrics_output", required=False, default="metrics", help="Path to save metrics and plots.")
     parser.add_argument("--graphs_output", required=False, default="graphs", help="Path to save training curves and weight histograms.")
+    parser.add_argument("--logdir", required=False, default="logs", help="Path to save TensorBoard logs.")
     args = parser.parse_args()
     if args.model_path:
         args.output = args.model_path
@@ -93,6 +95,11 @@ def main():
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
+
+    # TensorBoard logger
+    log_dir = args.logdir
+    os.makedirs(log_dir, exist_ok=True)
+    writer = tf.summary.create_file_writer(log_dir)
 
     # Более простая архитектура нейронной сети
     model = MLPRegressor(hidden_layer_sizes=(256, 128, 64), max_iter=500, random_state=42, alpha=0.001, solver='adam', warm_start=True)
@@ -115,6 +122,15 @@ def main():
         history['val_mae'].append(val_mae)
 
         print(f"[INFO] Epoch {epoch+1}/{model.max_iter}, Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, R2: {train_r2:.3f}, Val R2: {val_r2:.3f}, MAE: {train_mae:.2f}, Val MAE: {val_mae:.2f}")
+
+        # Log metrics to TensorBoard
+        with writer.as_default():
+            tf.summary.scalar("Loss/Train", train_loss, step=epoch)
+            tf.summary.scalar("Loss/Validation", val_loss, step=epoch)
+            tf.summary.scalar("R2/Train", train_r2, step=epoch)
+            tf.summary.scalar("R2/Validation", val_r2, step=epoch)
+            tf.summary.scalar("MAE/Train", train_mae, step=epoch)
+            tf.summary.scalar("MAE/Validation", val_mae, step=epoch)
 
     y_pred = model.predict(X_test_scaled)
 

@@ -159,7 +159,7 @@ stages:
     outs:
     - path: models/cat_boost.pkl
       hash: md5
-      md5: fb13ec4ea5d26dfcbd2786997fb218a2
+      md5: 595b555ef2114dd99be3c07963f648df
       size: 1086679
   train_mlp:
     cmd: python scripts/train_mlp.py --input data/cleaned_data.csv --model_path models/mlp.pkl
@@ -170,8 +170,8 @@ stages:
       size: 38444
     - path: scripts/train_mlp.py
       hash: md5
-      md5: 4c240b36a0141658dfcf303ec8815a48
-      size: 6006
+      md5: 5091a0c6f07a9b55c1de5d4dea553b6f
+      size: 6757
     outs:
     - path: models/mlp.pkl
       hash: md5
