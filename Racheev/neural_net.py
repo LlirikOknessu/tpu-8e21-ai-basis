@@ -16,23 +16,6 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import GridSearchCV
 import random
 
-#NeuralNet_MODELS_MAPPER = {'NeuralNet': NeuralNet}
-
-def parser_args_for_sac():
-    parser = argparse.ArgumentParser(description='Paths parser')
-    parser.add_argument('--input_dir', '-id', type=str, default='data/prepared/',
-                        required=False, help='path to input data directory')
-    parser.add_argument('--output_dir', '-od', type=str, default='data/models/',
-                        required=False, help='path to save prepared data')
-    parser.add_argument('--baseline_model', '-bm', type=str, default='data/models/LinearRegression_prod.joblib',
-                        required=False, help='path to linear regression prod version')
-    parser.add_argument('--model_name', '-mn', type=str, default='LR', required=False,
-                        help='file with dvc stage params')
-    parser.add_argument('--params', '-p', type=str, default='params.yaml', required=False,
-                        help='file with dvc stage params')
-    return parser.parse_args()
-
-
 @tf.keras.utils.register_keras_serializable()
 class NeuralNet(Model):
     def __init__(self, neurons_cnt=128, **kwargs):
@@ -62,6 +45,22 @@ class NeuralNet(Model):
         # Создаём экземпляр класса из конфигурации
         return cls(**config)
 
+NeuralNet_MODELS_MAPPER = {'NeuralNet': NeuralNet}
+
+def parser_args_for_sac():
+    parser = argparse.ArgumentParser(description='Paths parser')
+    parser.add_argument('--input_dir', '-id', type=str, default='data/prepared/',
+                        required=False, help='path to input data directory')
+    parser.add_argument('--output_dir', '-od', type=str, default='data/models/',
+                        required=False, help='path to save prepared data')
+    parser.add_argument('--baseline_model', '-bm', type=str, default='data/models/LinearRegression_prod.joblib',
+                        required=False, help='path to linear regression prod version')
+    parser.add_argument('--model_name', '-mn', type=str, default='LR', required=False,
+                        help='file with dvc stage params')
+    parser.add_argument('--params', '-p', type=str, default='params.yaml', required=False,
+                        help='file with dvc stage params')
+    return parser.parse_args()
+
 
 if __name__ == '__main__':
     args = parser_args_for_sac()
@@ -90,6 +89,8 @@ if __name__ == '__main__':
     # Create an instance of the model
     NN_model= NeuralNet(neurons_cnt=32)
     NN_model.build(input_shape=(None, 8))
+    print(type(parameters))
+    print(type(params_all['neural_net']))
     #Nnet = NeuralNet_MODELS_MAPPER.get(args.model_name)()
     #cat = GridSearchCV(estimator=cat, param_grid=parameters[args.model_name])
     '''
