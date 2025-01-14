@@ -89,8 +89,7 @@ if __name__ == '__main__':
     # Create an instance of the model
     NN_model= NeuralNet(neurons_cnt=32)
     NN_model.build(input_shape=(None, 8))
-    print(type(parameters))
-    print(type(params_all['neural_net']))
+    print(parameters[args.model_name]['LEARNING_RATE'])
     #Nnet = NeuralNet_MODELS_MAPPER.get(args.model_name)()
     #cat = GridSearchCV(estimator=cat, param_grid=parameters[args.model_name])
     '''

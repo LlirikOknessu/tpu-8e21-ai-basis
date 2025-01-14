@@ -983,7 +983,6 @@ stages:
             - 4
             - 6
             - 8
-            - 10
             learning_rate:
             - 0.01
             - 0.05
@@ -996,8 +995,8 @@ stages:
     outs:
     - path: data/models/CatBoostRegressor.joblib
       hash: md5
-      md5: 698e3964cf071e44ab4606d6106b2056
-      size: 229462
+      md5: 1f2d4a1e1d355019f84a5965392f954a
+      size: 227846
   cat_boost_validation:
     cmd: python cat_boost_validation.py -id data/prepared/ -im data/models/CatBoostRegressor.joblib
       -bm data/models/LinearRegression_prod.joblib -mn CatBoostRegressor
@@ -1008,8 +1007,8 @@ stages:
       size: 1938
     - path: data/models/CatBoostRegressor.joblib
       hash: md5
-      md5: 698e3964cf071e44ab4606d6106b2056
-      size: 229462
+      md5: 1f2d4a1e1d355019f84a5965392f954a
+      size: 227846
     - path: data/models/LinearRegression_prod.joblib
       hash: md5
       md5: c9d461da33d62b21ca7889273c9af486
@@ -1028,7 +1027,6 @@ stages:
             - 4
             - 6
             - 8
-            - 10
             learning_rate:
             - 0.01
             - 0.05
@@ -1047,8 +1045,8 @@ stages:
       size: 2755
     - path: data/models/CatBoostRegressor.joblib
       hash: md5
-      md5: 698e3964cf071e44ab4606d6106b2056
-      size: 229462
+      md5: 1f2d4a1e1d355019f84a5965392f954a
+      size: 227846
     - path: data/prepared
       hash: md5
       md5: 7ecfa8988994fcea85d926af86077089.dir
@@ -1063,7 +1061,6 @@ stages:
             - 4
             - 6
             - 8
-            - 10
             learning_rate:
             - 0.01
             - 0.05
@@ -1076,5 +1073,5 @@ stages:
     outs:
     - path: data/models/CatBoostRegressor_prod.joblib
       hash: md5
-      md5: a416b44ed7b147bd9d593b31d47178df
+      md5: fee6469cfc38ed155b08f8bd1f238051
       size: 227825
