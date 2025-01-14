@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import argparse
 import os
 import joblib
@@ -7,35 +5,63 @@ import pandas as pd
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score, mean_squared_error
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+import matplotlib.pyplot as plt
 
 def prepare_regression_data(df):
-    df_temp = pd.get_dummies(df.copy(), columns=['sex','smoker','region'], drop_first=True)
+    df_temp = pd.get_dummies(df.copy(), columns=['sex', 'smoker', 'region'], drop_first=True)
     X = df_temp.drop('charges', axis=1)
     y = df_temp['charges']
     return X, y
 
+def plot_metrics(y_test, y_pred, output_dir):
+    """Save scatter plot of actual vs predicted values."""
+    plt.figure(figsize=(6, 6))
+    plt.scatter(y_test, y_pred, alpha=0.5, color='orange')
+    plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], '--r', linewidth=2)
+    plt.xlabel('Actual Values')
+    plt.ylabel('Predicted Values')
+    plt.title('Actual vs Predicted')
+    os.makedirs(output_dir, exist_ok=True)
+    plt.savefig(os.path.join(output_dir, 'linear_regression_actual_vs_predicted.png'), dpi=300)
+    plt.close()
+
 def main():
-    parser = argparse.ArgumentParser(description="Train linear regression for charges.")
-    parser.add_argument("--input", required=True, help="Cleaned CSV input, e.g. data/cleaned_data.csv")
-    parser.add_argument("--output", required=True, help="Path to save the model, e.g. models/linear_model.pkl")
+    parser = argparse.ArgumentParser(description="Train a Linear Regression model.")
+    parser.add_argument("--input", required=True, help="Path to input CSV file.")
+    parser.add_argument("--output", required=True, help="Path to save the trained model.")
+    parser.add_argument("--metrics_output", required=False, default="metrics", help="Path to save metrics and plots.")
     args = parser.parse_args()
 
     df = pd.read_csv(args.input)
+    print(f"[INFO] Data loaded: {df.shape}")
+
     X, y = prepare_regression_data(df)
-    X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.2,random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     model = LinearRegression()
     model.fit(X_train, y_train)
+
     y_pred = model.predict(X_test)
+
     r2 = r2_score(y_test, y_pred)
     rmse = mean_squared_error(y_test, y_pred, squared=False)
+    mae = mean_absolute_error(y_test, y_pred)
 
-    print(f"[TRAIN] LinearRegression => R2={r2:.3f}, RMSE={rmse:.2f}")
+    print(f"[INFO] R2: {r2:.3f}, RMSE: {rmse:.2f}, MAE: {mae:.2f}")
+
+    metrics_path = os.path.join(args.metrics_output, 'linear_regression_metrics.txt')
+    os.makedirs(args.metrics_output, exist_ok=True)
+    with open(metrics_path, 'w') as f:
+        f.write(f"R2: {r2:.3f}\n")
+        f.write(f"RMSE: {rmse:.2f}\n")
+        f.write(f"MAE: {mae:.2f}\n")
+
+    plot_metrics(y_test, y_pred, args.metrics_output)
 
     os.makedirs(os.path.dirname(args.output), exist_ok=True)
     joblib.dump(model, args.output)
-    print(f"[INFO] Saved linear model to {args.output}")
+    print(f"[INFO] Model saved to {args.output}")
 
 if __name__ == "__main__":
     main()

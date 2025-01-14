@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-"""
-scripts/eda.py
-Делает расширенный EDA, используя --input data/cleaned_data.csv
-и сохраняет графики в папку graphs/<date_time>.
-"""
-
 import argparse
 import os
 import pandas as pd
@@ -27,44 +20,39 @@ def main():
     df = pd.read_csv(args.input)
     print(f"[INFO] EDA on {args.input}, shape={df.shape}")
 
-    num_cols = ['age','bmi','children','charges']
-    cat_cols = ['sex','smoker','region']
+    num_cols = ['age', 'bmi', 'children', 'charges']
+    cat_cols = ['sex', 'smoker', 'region']
     sns.set_theme(color_codes=True)
 
-    # 1) Гистограммы
-    plt.figure(figsize=(12,8))
+    # 1) Гистограммы числовых данных
+    plt.figure(figsize=(12, 8))
     for i, col in enumerate(num_cols, 1):
-        plt.subplot(2,2,i)
-        sns.histplot(df[col], kde=True)
+        plt.subplot(2, 2, i)
+        sns.histplot(df[col], kde=True, bins=30, color="blue")
         plt.title(f"Distribution of {col}")
     plt.tight_layout()
-    save_plot("01_eda_numerical_distributions.png")
+    save_plot("01_numeric_distributions.png")
 
-    # 2) Pairplot
-    sns.pairplot(df[num_cols], diag_kind='kde', corner=True)
-    plt.suptitle("Pairplot (numeric features)", y=1.02)
-    save_plot("02_pairplot_numeric.png")
+    # 2) Коробчатые диаграммы для числовых данных по категориям
+    for cat_col in cat_cols:
+        if cat_col in df.columns:
+            plt.figure(figsize=(12, 6))
+            sns.boxplot(x=cat_col, y="charges", data=df, palette="Set2")
+            plt.title(f"Charges by {cat_col}")
+            save_plot(f"02_boxplot_charges_by_{cat_col}.png")
 
-    # 3) Heatmap (corr)
-    df_corr = df.copy()
-    if 'smoker' in df_corr.columns:
-        df_corr['smoker'] = df_corr['smoker'].map({'no':0,'yes':1})
-    corr_cols = [c for c in num_cols if c in df_corr.columns]
-    if 'smoker' in df_corr.columns:
-        corr_cols.append('smoker')
-    if corr_cols:
-        plt.figure(figsize=(8,6))
-        sns.heatmap(df_corr[corr_cols].corr(), annot=True, cmap='YlGnBu')
+    # 3) Корреляционная тепловая карта
+    if len(num_cols) > 1:
+        plt.figure(figsize=(10, 8))
+        corr_matrix = df[num_cols].corr()
+        sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f")
         plt.title("Correlation Heatmap")
         save_plot("03_correlation_heatmap.png")
 
-    # 4) Boxplots
-    for cat_col in cat_cols:
-        if cat_col in df.columns and 'charges' in df.columns:
-            plt.figure(figsize=(8,5))
-            sns.boxplot(x=cat_col, y='charges', data=df, hue=cat_col, dodge=False)
-            plt.title(f"Charges by {cat_col}")
-            save_plot(f"04_boxplot_charges_by_{cat_col}.png")
+    # 4) Парные диаграммы (pairplot)
+    sns.pairplot(df[num_cols], diag_kind="kde", corner=True)
+    plt.suptitle("Pairplot of Numeric Features", y=1.02)
+    save_plot("04_pairplot_numeric_features.png")
 
     print("[INFO] EDA completed. Graphs saved in graphs/<time>")
 

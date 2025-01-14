@@ -29,6 +29,7 @@ MANIFEST
 Kostin/.DS_Store
 Kostin/data/.DS_Store
 Kostin/data/graphs
+Kostin/data/catboost_info
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
