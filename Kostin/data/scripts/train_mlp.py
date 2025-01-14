@@ -29,10 +29,10 @@ def plot_metrics(y_test, y_pred, output_dir):
 def plot_training_curves(history, output_dir):
     os.makedirs(output_dir, exist_ok=True)
 
+    # Loss curves
     plt.figure(figsize=(10, 5))
     plt.plot(history['loss'], label='Training Loss', color='blue')
-    if 'val_loss' in history:
-        plt.plot(history['val_loss'], label='Validation Loss', color='orange')
+    plt.plot(history['val_loss'], label='Validation Loss', color='orange')
     plt.title('Loss Curve')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
@@ -40,17 +40,26 @@ def plot_training_curves(history, output_dir):
     plt.savefig(os.path.join(output_dir, 'mlp_loss_curve.png'), dpi=300)
     plt.close()
 
-    if 'accuracy' in history:
-        plt.figure(figsize=(10, 5))
-        plt.plot(history['accuracy'], label='Training Accuracy', color='green')
-        if 'val_accuracy' in history:
-            plt.plot(history['val_accuracy'], label='Validation Accuracy', color='red')
-        plt.title('Accuracy Curve')
-        plt.xlabel('Epochs')
-        plt.ylabel('Accuracy')
-        plt.legend()
-        plt.savefig(os.path.join(output_dir, 'mlp_accuracy_curve.png'), dpi=300)
-        plt.close()
+    # R2 and MAE curves
+    plt.figure(figsize=(10, 5))
+    plt.plot(history['r2'], label='Training R2', color='green')
+    plt.plot(history['val_r2'], label='Validation R2', color='red')
+    plt.title('R2 Curve')
+    plt.xlabel('Epochs')
+    plt.ylabel('R2 Score')
+    plt.legend()
+    plt.savefig(os.path.join(output_dir, 'mlp_r2_curve.png'), dpi=300)
+    plt.close()
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(history['mae'], label='Training MAE', color='purple')
+    plt.plot(history['val_mae'], label='Validation MAE', color='brown')
+    plt.title('MAE Curve')
+    plt.xlabel('Epochs')
+    plt.ylabel('Mean Absolute Error')
+    plt.legend()
+    plt.savefig(os.path.join(output_dir, 'mlp_mae_curve.png'), dpi=300)
+    plt.close()
 
 def plot_weight_histograms(model, output_dir):
     """Save histograms of model weights."""
@@ -85,14 +94,27 @@ def main():
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
 
-    model = MLPRegressor(hidden_layer_sizes=(64, 64), max_iter=500, random_state=42, warm_start=True)
-    history = {'loss': []}
+    # Более простая архитектура нейронной сети
+    model = MLPRegressor(hidden_layer_sizes=(256, 128, 64), max_iter=500, random_state=42, alpha=0.001, solver='adam', warm_start=True)
+    history = {'loss': [], 'val_loss': [], 'r2': [], 'val_r2': [], 'mae': [], 'val_mae': []}
 
     for epoch in range(model.max_iter):
         model.partial_fit(X_train_scaled, y_train)
         train_loss = mean_squared_error(y_train, model.predict(X_train_scaled))
+        val_loss = mean_squared_error(y_test, model.predict(X_test_scaled))
+        train_r2 = r2_score(y_train, model.predict(X_train_scaled))
+        val_r2 = r2_score(y_test, model.predict(X_test_scaled))
+        train_mae = mean_absolute_error(y_train, model.predict(X_train_scaled))
+        val_mae = mean_absolute_error(y_test, model.predict(X_test_scaled))
+
         history['loss'].append(train_loss)
-        print(f"[INFO] Epoch {epoch+1}/{model.max_iter}, Loss: {train_loss:.4f}")
+        history['val_loss'].append(val_loss)
+        history['r2'].append(train_r2)
+        history['val_r2'].append(val_r2)
+        history['mae'].append(train_mae)
+        history['val_mae'].append(val_mae)
+
+        print(f"[INFO] Epoch {epoch+1}/{model.max_iter}, Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, R2: {train_r2:.3f}, Val R2: {val_r2:.3f}, MAE: {train_mae:.2f}, Val MAE: {val_mae:.2f}")
 
     y_pred = model.predict(X_test_scaled)
 

@@ -1,6 +1,6 @@
 stages:
   data_preparation:
-    cmd: python scripts/preprocess.py --input raw/insurance.csv --output data/cleaned_data.csv
+    cmd: python scripts/preprocess.py --input raw/insurance.csv --output data/cleaned_data.csv --max_charges 18000
     deps:
       - scripts/preprocess.py
       - raw/insurance.csv
