@@ -154,13 +154,13 @@ stages:
       size: 38444
     - path: scripts/train_catboost.py
       hash: md5
-      md5: 6f9ffa10eacc2a089eb46c971107ad4a
-      size: 2719
+      md5: 961a92176cb023d53638d8df34da52c3
+      size: 2847
     outs:
     - path: models/cat_boost.pkl
       hash: md5
-      md5: 595b555ef2114dd99be3c07963f648df
-      size: 1086679
+      md5: fb018485eacf88003d0429ef2aaa4892
+      size: 1078038
   train_mlp:
     cmd: python scripts/train_mlp.py --input data/cleaned_data.csv --model_path models/mlp.pkl
     deps:

@@ -9,8 +9,9 @@ from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 import matplotlib.pyplot as plt
 
 def prepare_regression_data(df):
-    df_temp = pd.get_dummies(df.copy(), columns=['sex', 'smoker', 'region'], drop_first=True)
-    X = df_temp.drop('charges', axis=1)
+    df_temp = pd.get_dummies(df.copy(), columns=['sex', 'smoker'], drop_first=True)
+    # 'age' is explicitly included as a feature, and 'region' is removed
+    X = df_temp[['age'] + [col for col in df_temp.columns if col not in ['age', 'charges', 'region']]]
     y = df_temp['charges']
     return X, y
 
@@ -41,6 +42,7 @@ def main():
     print(f"[INFO] Data loaded: {df.shape}")
 
     X, y = prepare_regression_data(df)
+
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     model = CatBoostRegressor(verbose=0, random_state=42)
