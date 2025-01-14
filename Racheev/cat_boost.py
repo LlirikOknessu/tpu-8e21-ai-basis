@@ -75,10 +75,8 @@ if __name__ == '__main__':
                   'learning_rate': [0.01, 0.05, 0.1],
                   'iterations': [30, 50, 100]
                   }
-
     cat = GridSearchCV(estimator=cat, param_grid=parameters, cv=2, n_jobs=-1)
     '''
-
     #decision_tree_model = CATBOOST_MODELS_MAPPER.get(args.model_name)()
     #decision_tree_regressor = GridSearchCV(decision_tree_model, params[args.model_name])
     cat.fit(X_train, y_train, verbose=False)
