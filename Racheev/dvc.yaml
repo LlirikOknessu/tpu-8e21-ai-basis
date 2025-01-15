@@ -110,7 +110,7 @@ stages:
     params:
       - neural_net
   neural_net_validation:
-    cmd: python neural_net_validation.py -id data/prepared/ -im data/models/${neural_net.model_name}.joblib -bm data/models/${linear_regression.model_name}_prod.joblib -mn ${neural_net.model_name}
+    cmd: python neural_net_validation.py -id data/prepared/ -im data/models/${neural_net.model_name}.keras -bm data/models/${linear_regression.model_name}_prod.joblib -mn ${neural_net.model_name}
     deps:
       - neural_net_validation.py
       - data/prepared/

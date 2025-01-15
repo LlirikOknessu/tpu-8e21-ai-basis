@@ -53,13 +53,13 @@ def parser_args_for_sac():
     parser = argparse.ArgumentParser(description='Paths parser')
     parser.add_argument('--input_dir', '-id', type=str, default='data/prepared/',
                         required=False, help='path to input data directory')
+    parser.add_argument('--input_model', '-im', type=str, default='data/models/',
+                        required=False, help='path to save prepared data')
     parser.add_argument('--baseline_model', '-bm', type=str, default='data/models/LinearRegression_prod.joblib',
                         required=False, help='path to linear regression prod version')
     parser.add_argument('--logs_dir', '-lg', type=str, default='data/logs',
                         required=False, help='path to save logs folder')
     parser.add_argument('--model_name', '-mn', type=str, default='LR', required=False,
-                        help='file with dvc stage params')
-    parser.add_argument('--params', '-p', type=str, default='params.yaml', required=False,
                         help='file with dvc stage params')
     return parser.parse_args()
 
@@ -67,6 +67,7 @@ if __name__ == '__main__':
     args = parser_args_for_sac()
 
     input_dir = Path(args.input_dir)
+    input_model = Path(args.input_model)
     baseline_model_path = Path(args.baseline_model)
     logs_path = Path(args.logs_dir)
     if logs_path.exists():
@@ -81,14 +82,13 @@ if __name__ == '__main__':
     X_val = pd.read_csv(X_val_name)
     y_val = pd.read_csv(y_val_name)
 
-    loaded_model = keras.models.load_model(input_dir, NeuralNet_MODELS_MAPPER)
+    loaded_model = keras.models.load_model(input_model, NeuralNet_MODELS_MAPPER)#.get(args.model_name)
 
     predicted_values = np.squeeze(loaded_model.predict(X_val))
 
     baseline_model = load(baseline_model_path)
     y_pred_baseline = np.squeeze(baseline_model.predict(X_val))
 
-    print(loaded_model.score(X_val, y_val))
     print("Baseline MAE: ", mean_absolute_error(y_val, y_pred_baseline))
     print("Model MAE: ", mean_absolute_error(y_val, predicted_values))
 

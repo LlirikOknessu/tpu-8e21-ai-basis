@@ -33,7 +33,7 @@ if __name__ == '__main__':
     output_dir = Path(args.output_dir)
 
     output_dir.mkdir(exist_ok=True, parents=True)
-    #output_model_path = output_dir / (args.model_name + '_prod.jpg') # for visualisation
+    output_model_path = output_dir / (args.model_name + '_prod.jpg') # for visualisation
     output_model_joblib_path = output_dir / (args.model_name + '_prod.joblib')
 
     X_train_name = input_dir / 'X_full.csv'
@@ -72,3 +72,4 @@ if __name__ == '__main__':
     plt.show()
     '''
     dump(reg, output_model_joblib_path)
+

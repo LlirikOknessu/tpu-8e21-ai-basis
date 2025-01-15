@@ -101,7 +101,7 @@ if __name__ == '__main__':
     test_ds = tf.data.Dataset.from_tensor_slices((X_test, y_test)).batch(parameters[args.model_name]['BATCH_SIZE'])
 
     # Create an instance of the model
-    NN_model= NeuralNet(neurons_cnt=32)
+    NN_model = NeuralNet_MODELS_MAPPER.get(args.model_name)(neurons_cnt=64)
     NN_model.build(input_shape=(None, 8))
 
     loss_object = tf.keras.losses.MeanSquaredError()# Определение функции потерь
@@ -109,11 +109,11 @@ if __name__ == '__main__':
 
     train_loss = tf.keras.metrics.Mean(name='train_loss')
     train_mae = tf.keras.metrics.MeanAbsoluteError(name='train_mae')
-    train_accuracy = tf.keras.metrics.R2Score(name='train_r2_score')
+    train_accuracy = tf.keras.metrics.R2Score(class_aggregation='uniform_average',num_regressors=0,name='train_r2_score',dtype=None)
 
     test_loss = tf.keras.metrics.Mean(name='test_loss')
     test_mae = tf.keras.metrics.MeanAbsoluteError(name='test_mae')
-    test_accuracy = tf.keras.metrics.R2Score(name='test_r2_score')
+    test_accuracy = tf.keras.metrics.R2Score(class_aggregation='uniform_average', num_regressors=0, name='test_r2_score', dtype=None)
 
 
     @tf.function
@@ -192,6 +192,7 @@ if __name__ == '__main__':
                               test_mae.result(),
                               test_accuracy.result()))
 
+
         # Reset metrics every epoch
         train_loss.reset_state()
         test_loss.reset_state()
@@ -207,15 +208,8 @@ if __name__ == '__main__':
 
     NN_model.save(output_model_keras_path)#
 
-    loaded_model = keras.models.load_model(input_dir, NeuralNet_MODELS_MAPPER)
-    if(np.testing.assert_allclose(NN_model.predict(X_test),loaded_model.predict(X_test))):
-        print('Загрузка прошла успешно')
-    else:
-        print('Загрузка провалилась')
-
-
-
-    #Nnet = NeuralNet_MODELS_MAPPER.get(args.model_name)()
-    #Nnet = GridSearchCV(estimator=Nnet, param_grid=parameters[args.model_name])
+    #Проверка загрузки
+    loaded_model = keras.models.load_model(output_model_keras_path, NeuralNet_MODELS_MAPPER)
+    print(np.testing.assert_allclose(NN_model.predict(X_test),loaded_model.predict(X_test)))
 
 

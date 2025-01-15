@@ -1086,8 +1086,8 @@ stages:
       nfiles: 8
     - path: neural_net.py
       hash: md5
-      md5: 31e29d1b71117c3cfa0cf390e85434dd
-      size: 9268
+      md5: ef1e92a34e213c2c6ada51a2a2e99e66
+      size: 9487
     params:
       params.yaml:
         neural_net:
@@ -1100,5 +1100,5 @@ stages:
     outs:
     - path: data/models/NeuralNet.keras
       hash: md5
-      md5: 060d93e45dcfad817e836e360299ce3b
-      size: 23342
+      md5: db3f6cc45e81ee4da3d0d41931574233
+      size: 37038
