@@ -94,8 +94,10 @@ if __name__ == '__main__':
 
     test_accuracy = tf.keras.metrics.R2Score(class_aggregation='uniform_average', num_regressors=0,
                                              name='test_r2_score', dtype=None)
-    print("Baseline MAE: ", baseline_model.score(X_val, y_val))
-    print("Model R2: ", test_accuracy('test_r2_score', predicted_values))
+
+    test_accuracy.update_state(y_val, predicted_values)
+    print("Baseline R2: ", baseline_model.score(X_val, y_val))
+    print("Model R2: ", test_accuracy.result())
 
 
 

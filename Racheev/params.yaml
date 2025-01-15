@@ -30,7 +30,7 @@ neural_net:
   model_name: 'NeuralNet'
   NeuralNet:
     'NEURONS_CNT' : 64
-    'BATCH_SIZE' : 64
+    'BATCH_SIZE' : 128
     'BUFFER_SIZE' : 128
     'LEARNING_RATE' : 0.001
-    'EPOCHS' : 80
+    'EPOCHS' : 100

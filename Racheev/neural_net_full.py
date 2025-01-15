@@ -144,7 +144,8 @@ if __name__ == '__main__':
 
         with train_summary_writer.as_default():
             tf.summary.scalar('loss', train_loss.result(), step=epoch)
-            tf.summary.scalar('mae', train_accuracy.result(), step=epoch)
+            tf.summary.scalar('mae', train_mae.result(), step=epoch)
+            tf.summary.scalar('accuracy', train_accuracy.result(), step=epoch)
 
         '''
         template = 'Epoch {}, Loss: {}, MAE: {}, Test Loss: {}, Test MAE: {}'
@@ -154,11 +155,12 @@ if __name__ == '__main__':
                               test_loss.result(),
                               test_mae.result()))
         '''
-        template = 'Epoch {}, Loss: {}, MAE: {}, Accuracy: {}, Test Loss: {}, Test MAE: {}, Accuracy: {}'
-        print(template.format(epoch + 1,
-                              train_loss.result(),
-                              train_mae.result(),
-                              train_accuracy.result()))
+
+        #template = 'Epoch {}, Loss: {}, MAE: {}, Accuracy: {}'
+        #print(template.format(epoch + 1,
+        #                      train_loss.result(),
+        #                      train_mae.result(),
+        #                      train_accuracy.result()))
 
         # Reset metrics every epoch
         train_loss.reset_state()

@@ -167,14 +167,16 @@ if __name__ == '__main__':
 
         with train_summary_writer.as_default():
             tf.summary.scalar('loss', train_loss.result(), step=epoch)
-            tf.summary.scalar('mae', train_accuracy.result(), step=epoch)
+            tf.summary.scalar('mae', train_mae.result(), step=epoch)
+            tf.summary.scalar('accuracy', train_accuracy.result(), step=epoch)
 
         for (x_test, y_test) in test_ds:
             test_step(x_test, y_test)
 
         with test_summary_writer.as_default():
             tf.summary.scalar('loss', test_loss.result(), step=epoch)
-            tf.summary.scalar('mae', test_accuracy.result(), step=epoch)
+            tf.summary.scalar('mae', test_mae.result(), step=epoch)
+            tf.summary.scalar('accuracy', test_accuracy.result(), step=epoch)
         '''
         template = 'Epoch {}, Loss: {}, MAE: {}, Test Loss: {}, Test MAE: {}'
         print(template.format(epoch + 1,
