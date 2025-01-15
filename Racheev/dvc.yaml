@@ -114,7 +114,7 @@ stages:
     deps:
       - neural_net_validation.py
       - data/prepared/
-      - data/models/${neural_net.model_name}.joblib
+      - data/models/${neural_net.model_name}.keras
       - data/models/${linear_regression.model_name}_prod.joblib
     params:
       - neural_net
@@ -123,8 +123,8 @@ stages:
     deps:
       - neural_net_full.py
       - data/prepared
-      - data/models/${neural_net.model_name}.joblib
+      - data/models/${neural_net.model_name}.keras
     outs:
-      - data/models/${neural_net.model_name}_prod.joblib
+      - data/models/${neural_net.model_name}_prod.keras
     params:
       - neural_net

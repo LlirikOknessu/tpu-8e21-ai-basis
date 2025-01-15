@@ -104,27 +104,30 @@ if __name__ == '__main__':
     NN_model= NeuralNet(neurons_cnt=32)
     NN_model.build(input_shape=(None, 8))
 
-    loss_object = tf.keras.losses.MeanSquaredError()
-    optimizer = tf.keras.optimizers.SGD(learning_rate=parameters[args.model_name]['LEARNING_RATE'])
+    loss_object = tf.keras.losses.MeanSquaredError()# Определение функции потерь
+    optimizer = tf.keras.optimizers.SGD(learning_rate=parameters[args.model_name]['LEARNING_RATE'])# Определение оптимизатора
 
-    train_loss = tf.keras.metrics.Mean(name='train_loss')#################
-    train_accuracy = tf.keras.metrics.MeanAbsoluteError(name='train_mae')#################
+    train_loss = tf.keras.metrics.Mean(name='train_loss')
+    train_mae = tf.keras.metrics.MeanAbsoluteError(name='train_mae')
+    train_accuracy = tf.keras.metrics.R2Score(name='train_r2_score')
 
-    test_loss = tf.keras.metrics.Mean(name='test_loss')#################
-    test_accuracy = tf.keras.metrics.MeanAbsoluteError(name='test_mae')#################
+    test_loss = tf.keras.metrics.Mean(name='test_loss')
+    test_mae = tf.keras.metrics.MeanAbsoluteError(name='test_mae')
+    test_accuracy = tf.keras.metrics.R2Score(name='test_r2_score')
 
 
     @tf.function
-    def train_step(input_vector, labels):
+    def train_step(input_vector, labels):     # Обучение одной эпохи
         with tf.GradientTape() as tape:
             # training=True is only needed if there are layers with different
             # behavior during training versus inference (e.g. Dropout).
-            predictions = NN_model(input_vector, training=True)
-            loss = loss_object(labels, predictions)
-        gradients = tape.gradient(loss, NN_model.trainable_variables)
-        optimizer.apply_gradients(zip(gradients, NN_model.trainable_variables))
+            predictions = NN_model(input_vector, training=True)#получение предсказания
+            loss = loss_object(labels, predictions)#вычисление функции потерь
+        gradients = tape.gradient(loss, NN_model.trainable_variables)#вычисление градиента
+        optimizer.apply_gradients(zip(gradients, NN_model.trainable_variables))# Обновление переменных
 
         train_loss(loss)
+        train_mae(labels, predictions)
         train_accuracy(labels, predictions)
 
 
@@ -136,6 +139,7 @@ if __name__ == '__main__':
         t_loss = loss_object(labels, predictions)
 
         test_loss(t_loss)
+        test_mae(labels, predictions)
         test_accuracy(labels, predictions)
 
 
@@ -153,6 +157,8 @@ if __name__ == '__main__':
     fit_summary_writer = tf.summary.create_file_writer(str(logdir))
 
     tf.summary.trace_on(graph=True, profiler=True, profiler_outdir=str(logdir))
+
+    # Процесс обучения
     for epoch in range(parameters[args.model_name]['EPOCHS']):
         # Reset the metrics at the start of the next epoch
         for (x_train, y_train) in train_ds:
@@ -161,7 +167,7 @@ if __name__ == '__main__':
 
         with train_summary_writer.as_default():
             tf.summary.scalar('loss', train_loss.result(), step=epoch)
-            tf.summary.scalar('accuracy', train_accuracy.result(), step=epoch)
+            tf.summary.scalar('mae', train_accuracy.result(), step=epoch)
 
         for (x_test, y_test) in test_ds:
             test_step(x_test, y_test)
@@ -169,12 +175,21 @@ if __name__ == '__main__':
         with test_summary_writer.as_default():
             tf.summary.scalar('loss', test_loss.result(), step=epoch)
             tf.summary.scalar('mae', test_accuracy.result(), step=epoch)
-
-        template = 'Epoch {}, Loss: {}, Accuracy: {}, Test Loss: {}, Test MAE: {}'
+        '''
+        template = 'Epoch {}, Loss: {}, MAE: {}, Test Loss: {}, Test MAE: {}'
         print(template.format(epoch + 1,
                               train_loss.result(),
+                              train_mae.result(),
+                              test_loss.result(),
+                              test_mae.result()))
+        '''
+        template = 'Epoch {}, Loss: {}, MAE: {}, Accuracy: {}, Test Loss: {}, Test MAE: {}, Accuracy: {}'
+        print(template.format(epoch + 1,
+                              train_loss.result(),
+                              train_mae.result(),
                               train_accuracy.result(),
                               test_loss.result(),
+                              test_mae.result(),
                               test_accuracy.result()))
 
         # Reset metrics every epoch
@@ -192,45 +207,15 @@ if __name__ == '__main__':
 
     NN_model.save(output_model_keras_path)#
 
-    '''
-    loaded_model = keras.models.load_model('./data/models/mymodel.keras', NeuralNet_MODELS_MAPPER)
-        np.testing.assert_allclose(
-        NN_model.predict(X_test),
-        loaded_model.predict(X_test)
-    )
-    %tensorboard --logdir ./data/logs  ###################
-    %tensorboard --logdir ./data/logs/gradient_tape
-    
-    
-    
-    '''
+    loaded_model = keras.models.load_model(input_dir, NeuralNet_MODELS_MAPPER)
+    if(np.testing.assert_allclose(NN_model.predict(X_test),loaded_model.predict(X_test))):
+        print('Загрузка прошла успешно')
+    else:
+        print('Загрузка провалилась')
+
 
 
     #Nnet = NeuralNet_MODELS_MAPPER.get(args.model_name)()
     #Nnet = GridSearchCV(estimator=Nnet, param_grid=parameters[args.model_name])
-    '''
-    params = {"iterations": 100,
-              "depth": 2,
-              "loss_function": "RMSE",
-              "verbose": False}
-    cv_dataset = Pool(data=X_train,
-                      label=y_train)
-    scores = cv(cv_dataset,
-                params,
-                fold_count=2,
-                plot="True")
 
-    grid = {'learning_rate': [0.03, 0.1],
-            'depth': [4, 6, 10],
-            'l2_leaf_reg': [1, 3, 5, 7, 9]}
-    '''
-
-    '''
-    parameters = {'depth': [6, 8, 10],
-                  'learning_rate': [0.01, 0.05, 0.1],
-                  'iterations': [30, 50, 100]
-                  }
-
-    cat = GridSearchCV(estimator=cat, param_grid=parameters, cv=2, n_jobs=-1)
-    '''
 
