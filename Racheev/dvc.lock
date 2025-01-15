@@ -1041,8 +1041,8 @@ stages:
     deps:
     - path: cat_boost_full.py
       hash: md5
-      md5: 8709e6fab168f8056480ddd7b745fbfa
-      size: 2755
+      md5: 8933fa9f421fce220a483e0c0be36f1d
+      size: 2758
     - path: data/models/CatBoostRegressor.joblib
       hash: md5
       md5: cc79e66949fc889cf98f6e09639953a0
@@ -1073,7 +1073,7 @@ stages:
     outs:
     - path: data/models/CatBoostRegressor_prod.joblib
       hash: md5
-      md5: 2e7bb4fe3c7f1c114474444055131b3c
+      md5: acf854f2c13a7144d02233814614fac2
       size: 227825
   neural_net:
     cmd: python neural_net.py -id data/prepared/ -od data/models -bm data/models/LinearRegression_prod.joblib
@@ -1086,8 +1086,8 @@ stages:
       nfiles: 8
     - path: neural_net.py
       hash: md5
-      md5: ef1e92a34e213c2c6ada51a2a2e99e66
-      size: 9487
+      md5: 3f30d5e06d7864c741d426c9e603cf9a
+      size: 9396
     params:
       params.yaml:
         neural_net:
@@ -1100,5 +1100,5 @@ stages:
     outs:
     - path: data/models/NeuralNet.keras
       hash: md5
-      md5: db3f6cc45e81ee4da3d0d41931574233
+      md5: 4919f42e396f80a5bab4ce3732466b6e
       size: 37038

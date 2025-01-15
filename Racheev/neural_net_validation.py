@@ -84,13 +84,22 @@ if __name__ == '__main__':
 
     loaded_model = keras.models.load_model(input_model, NeuralNet_MODELS_MAPPER)#.get(args.model_name)
 
-    predicted_values = np.squeeze(loaded_model.predict(X_val))
+    predicted_values = loaded_model(X_val, training=False)
 
     baseline_model = load(baseline_model_path)
     y_pred_baseline = np.squeeze(baseline_model.predict(X_val))
 
     print("Baseline MAE: ", mean_absolute_error(y_val, y_pred_baseline))
     print("Model MAE: ", mean_absolute_error(y_val, predicted_values))
+
+    test_accuracy = tf.keras.metrics.R2Score(class_aggregation='uniform_average', num_regressors=0,
+                                             name='test_r2_score', dtype=None)
+    print("Baseline MAE: ", baseline_model.score(X_val, y_val))
+    print("Model R2: ", test_accuracy('test_r2_score', predicted_values))
+
+
+
+
 
     '''
     loaded_model = keras.models.load_model('./data/models/mymodel.keras', NeuralNet_MODELS_MAPPER)
@@ -102,7 +111,7 @@ if __name__ == '__main__':
     %tensorboard --logdir ./data/logs/gradient_tape
     ###--logdir logs/fit
     tensorboard --logdir='Log_Dir'
-
+    '''
 
     '''
     from tensorboard import program
@@ -112,8 +121,7 @@ if __name__ == '__main__':
     tb.configure(argv=[None, '--logdir', tracking_address])
     url = tb.launch()
     print(f"Tensorflow listening on {url}")
-
-    '''
+    
     import tensorflow as tf
     from tensorboard import main as tb
     tf.flags.FLAGS.logdir = "/path/to/graphs/"

@@ -29,7 +29,8 @@ cat_boost:
 neural_net:
   model_name: 'NeuralNet'
   NeuralNet:
+    'NEURONS_CNT' : 64
     'BATCH_SIZE' : 64
     'BUFFER_SIZE' : 128
-    'LEARNING_RATE' : 0.005
-    'EPOCHS' : 50
+    'LEARNING_RATE' : 0.001
+    'EPOCHS' : 80

@@ -101,7 +101,7 @@ if __name__ == '__main__':
     test_ds = tf.data.Dataset.from_tensor_slices((X_test, y_test)).batch(parameters[args.model_name]['BATCH_SIZE'])
 
     # Create an instance of the model
-    NN_model = NeuralNet_MODELS_MAPPER.get(args.model_name)(neurons_cnt=64)
+    NN_model = NeuralNet_MODELS_MAPPER.get(args.model_name)(parameters[args.model_name]['NEURONS_CNT'])
     NN_model.build(input_shape=(None, 8))
 
     loss_object = tf.keras.losses.MeanSquaredError()# Определение функции потерь
@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
     train_loss = tf.keras.metrics.Mean(name='train_loss')
     train_mae = tf.keras.metrics.MeanAbsoluteError(name='train_mae')
-    train_accuracy = tf.keras.metrics.R2Score(class_aggregation='uniform_average',num_regressors=0,name='train_r2_score',dtype=None)
+    train_accuracy = tf.keras.metrics.R2Score(class_aggregation='uniform_average', num_regressors=0, name='train_r2_score', dtype=None)
 
     test_loss = tf.keras.metrics.Mean(name='test_loss')
     test_mae = tf.keras.metrics.MeanAbsoluteError(name='test_mae')
