@@ -1139,7 +1139,7 @@ stages:
     deps:
     - path: data/models/NeuralNet.keras
       hash: md5
-      md5: e3e4f35659dc18a3e51f7e5c48a0d53d
+      md5: 44a6e1aa8b7d19e13b97c9d6a4f6b570
       size: 18445
     - path: data/prepared
       hash: md5
@@ -1148,8 +1148,8 @@ stages:
       nfiles: 8
     - path: neural_net_full.py
       hash: md5
-      md5: 818edc4c5aa7da3bdaed33318f77c488
-      size: 7577
+      md5: 15208c69063a48b3c33b3429502cb558
+      size: 7692
     params:
       params.yaml:
         neural_net:
@@ -1157,11 +1157,11 @@ stages:
           NeuralNet:
             NEURONS_CNT: 8
             BATCH_SIZE: 64
-            BUFFER_SIZE: 128
-            LEARNING_RATE: 0.001
-            EPOCHS: 1000
+            BUFFER_SIZE: 256
+            LEARNING_RATE: 0.002
+            EPOCHS: 2000
     outs:
     - path: data/models/NeuralNet_prod.keras
       hash: md5
-      md5: c2896f4075850ce00f4b02399b807926
+      md5: 425b175874d3487229a36a5631c6df94
       size: 37038

@@ -17,9 +17,6 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import GridSearchCV
 import random
 
-from Racheev.neural_net import NeuralNet
-
-
 @tf.keras.utils.register_keras_serializable()
 class NeuralNet(Model):
     def __init__(self, neurons_cnt=128, **kwargs):

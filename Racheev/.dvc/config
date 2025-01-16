@@ -3,3 +3,5 @@
     remote = remote_data
 ['remote "remote_data"']
     url = ../arch
+['remote "local_storage"']
+    url = ../dvc_local_storage
