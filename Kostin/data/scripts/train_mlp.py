@@ -30,7 +30,6 @@ def plot_metrics(y_test, y_pred, output_dir):
 def plot_training_curves(history, output_dir):
     os.makedirs(output_dir, exist_ok=True)
 
-    # Loss curves
     plt.figure(figsize=(10, 5))
     plt.plot(history['loss'], label='Training Loss', color='blue')
     plt.plot(history['val_loss'], label='Validation Loss', color='orange')
@@ -41,7 +40,6 @@ def plot_training_curves(history, output_dir):
     plt.savefig(os.path.join(output_dir, 'mlp_loss_curve.png'), dpi=300)
     plt.close()
 
-    # R2 and MAE curves
     plt.figure(figsize=(10, 5))
     plt.plot(history['r2'], label='Training R2', color='green')
     plt.plot(history['val_r2'], label='Validation R2', color='red')

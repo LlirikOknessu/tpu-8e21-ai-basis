@@ -43,7 +43,6 @@ def main():
     df = pd.read_csv(args.input)
     df = df.drop_duplicates().dropna()
 
-    # Remove invalid columns
     df, removed_columns = remove_invalid_columns(df, args.invalid_keywords)
     print(f"[INFO] Removed columns: {removed_columns}")
 
