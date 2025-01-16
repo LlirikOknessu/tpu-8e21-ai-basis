@@ -96,8 +96,9 @@ if __name__ == '__main__':
                                              name='test_r2_score', dtype=None)
 
     test_accuracy.update_state(y_val, predicted_values)
+    result = test_accuracy.result()
     print("Baseline R2: ", baseline_model.score(X_val, y_val))
-    print("Model R2: ", test_accuracy.result())
+    print("Model R2: ", result)
 
 
 

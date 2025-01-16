@@ -1093,16 +1093,16 @@ stages:
         neural_net:
           model_name: NeuralNet
           NeuralNet:
-            NEURONS_CNT: 64
-            BATCH_SIZE: 128
-            BUFFER_SIZE: 128
-            LEARNING_RATE: 0.001
-            EPOCHS: 100
+            NEURONS_CNT: 8
+            BATCH_SIZE: 64
+            BUFFER_SIZE: 256
+            LEARNING_RATE: 0.002
+            EPOCHS: 2000
     outs:
     - path: data/models/NeuralNet.keras
       hash: md5
-      md5: 67a93c5210437ab878e7ed8cf9cac167
-      size: 37038
+      md5: 9e976c7c020795cac6ee1f1a63d8b306
+      size: 18445
   neural_net_validation:
     cmd: python neural_net_validation.py -id data/prepared/ -im data/models/NeuralNet.keras
       -bm data/models/LinearRegression_prod.joblib -mn NeuralNet
@@ -1113,8 +1113,8 @@ stages:
       size: 1087
     - path: data/models/NeuralNet.keras
       hash: md5
-      md5: 67a93c5210437ab878e7ed8cf9cac167
-      size: 37038
+      md5: 9e976c7c020795cac6ee1f1a63d8b306
+      size: 18445
     - path: data/prepared/
       hash: md5
       md5: 7ecfa8988994fcea85d926af86077089.dir
@@ -1122,25 +1122,25 @@ stages:
       nfiles: 8
     - path: neural_net_validation.py
       hash: md5
-      md5: 5ddf2582ab0734503a56fde69b17ed1e
-      size: 4794
+      md5: b6add92b1d459b3b96a8d45b01a590db
+      size: 4815
     params:
       params.yaml:
         neural_net:
           model_name: NeuralNet
           NeuralNet:
-            NEURONS_CNT: 64
-            BATCH_SIZE: 128
-            BUFFER_SIZE: 128
-            LEARNING_RATE: 0.001
-            EPOCHS: 100
+            NEURONS_CNT: 8
+            BATCH_SIZE: 64
+            BUFFER_SIZE: 256
+            LEARNING_RATE: 0.002
+            EPOCHS: 2000
   neural_net_prod_version:
     cmd: python neural_net_full.py -id data/prepared/ -od data/models/ -mn NeuralNet
     deps:
     - path: data/models/NeuralNet.keras
       hash: md5
-      md5: 67a93c5210437ab878e7ed8cf9cac167
-      size: 37038
+      md5: e3e4f35659dc18a3e51f7e5c48a0d53d
+      size: 18445
     - path: data/prepared
       hash: md5
       md5: 7ecfa8988994fcea85d926af86077089.dir
@@ -1155,13 +1155,13 @@ stages:
         neural_net:
           model_name: NeuralNet
           NeuralNet:
-            NEURONS_CNT: 64
-            BATCH_SIZE: 128
+            NEURONS_CNT: 8
+            BATCH_SIZE: 64
             BUFFER_SIZE: 128
             LEARNING_RATE: 0.001
-            EPOCHS: 100
+            EPOCHS: 1000
     outs:
     - path: data/models/NeuralNet_prod.keras
       hash: md5
-      md5: b603dad378a5781131f9e2d4bbf28dfb
+      md5: c2896f4075850ce00f4b02399b807926
       size: 37038
