@@ -17,6 +17,9 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import GridSearchCV
 import random
 
+from Racheev.neural_net import NeuralNet
+
+
 @tf.keras.utils.register_keras_serializable()
 class NeuralNet(Model):
     def __init__(self, neurons_cnt=128, **kwargs):
@@ -49,6 +52,9 @@ class NeuralNet(Model):
 
 NeuralNet_MODELS_MAPPER = {'NeuralNet': NeuralNet}
 
+NeuralNet_MODELS_BEST_PARAMETERS = {
+    'NeuralNet': {'NEURONS_CNT': 8, 'BATCH_SIZE': 64, 'BUFFER_SIZE': 256, 'LEARNING_RATE': 0.002, 'EPOCHS': 2000}}
+
 def parser_args_for_sac():
     parser = argparse.ArgumentParser(description='Paths parser')
     parser.add_argument('--input_dir', '-id', type=str, default='data/prepared/',
@@ -77,12 +83,12 @@ if __name__ == '__main__':
     output_dir = Path(args.output_dir)
 
     logs_path = Path(args.logs_dir)
-    if logs_path.exists():
-        shutil.rmtree(logs_path)
-    logs_path.mkdir(parents=True)
+    logs_path.mkdir(exist_ok=True, parents=True)
 
     output_dir.mkdir(exist_ok=True, parents=True)
     output_model_keras_path = output_dir / (args.model_name + '_prod.keras')
+
+    best_params = NeuralNet_MODELS_BEST_PARAMETERS.get(args.model_name)
 
     X_train_name = input_dir / 'X_full.csv'
     y_train_name = input_dir / 'y_full.csv'
@@ -93,7 +99,7 @@ if __name__ == '__main__':
 
     train_ds = tf.data.Dataset.from_tensor_slices(
         (X_train, y_train)).shuffle(
-        parameters[args.model_name]['BUFFER_SIZE']).batch(parameters[args.model_name]['BATCH_SIZE'])
+        best_params['BUFFER_SIZE']).batch(best_params['BATCH_SIZE'])
 
     # Create an instance of the model
     NN_model = NeuralNet_MODELS_MAPPER.get(args.model_name)(neurons_cnt=64)
@@ -101,7 +107,7 @@ if __name__ == '__main__':
 
     loss_object = tf.keras.losses.MeanSquaredError()  # Определение функции потерь
     optimizer = tf.keras.optimizers.SGD(
-        learning_rate=parameters[args.model_name]['LEARNING_RATE'])  # Определение оптимизатора
+        learning_rate=best_params['LEARNING_RATE'])  # Определение оптимизатора
 
     train_loss = tf.keras.metrics.Mean(name='train_loss')
     train_mae = tf.keras.metrics.MeanAbsoluteError(name='train_mae')
@@ -136,7 +142,7 @@ if __name__ == '__main__':
     tf.summary.trace_on(graph=True, profiler=True, profiler_outdir=str(logdir))
 
     # Процесс обучения
-    for epoch in range(parameters[args.model_name]['EPOCHS']):
+    for epoch in range(best_params['EPOCHS']):
         # Reset the metrics at the start of the next epoch
         for (x_train, y_train) in train_ds:
             with fit_summary_writer.as_default():
@@ -156,11 +162,11 @@ if __name__ == '__main__':
                               test_mae.result()))
         '''
 
-        #template = 'Epoch {}, Loss: {}, MAE: {}, Accuracy: {}'
-        #print(template.format(epoch + 1,
-        #                      train_loss.result(),
-        #                      train_mae.result(),
-        #                      train_accuracy.result()))
+        template = 'Epoch {}, Loss: {}, MAE: {}, Accuracy: {}'
+        print(template.format(epoch + 1,
+                              train_loss.result(),
+                              train_mae.result(),
+                              train_accuracy.result()))
 
         # Reset metrics every epoch
         train_loss.reset_state()

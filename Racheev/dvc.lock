@@ -1086,8 +1086,8 @@ stages:
       nfiles: 8
     - path: neural_net.py
       hash: md5
-      md5: d60aad9b3af74594ab0325c1f38b9e60
-      size: 9576
+      md5: 313b6e50f100f0e9a058f81cb0492d7b
+      size: 9529
     params:
       params.yaml:
         neural_net:
@@ -1101,7 +1101,7 @@ stages:
     outs:
     - path: data/models/NeuralNet.keras
       hash: md5
-      md5: 9e976c7c020795cac6ee1f1a63d8b306
+      md5: 44a6e1aa8b7d19e13b97c9d6a4f6b570
       size: 18445
   neural_net_validation:
     cmd: python neural_net_validation.py -id data/prepared/ -im data/models/NeuralNet.keras
@@ -1113,7 +1113,7 @@ stages:
       size: 1087
     - path: data/models/NeuralNet.keras
       hash: md5
-      md5: 9e976c7c020795cac6ee1f1a63d8b306
+      md5: 44a6e1aa8b7d19e13b97c9d6a4f6b570
       size: 18445
     - path: data/prepared/
       hash: md5
@@ -1122,8 +1122,8 @@ stages:
       nfiles: 8
     - path: neural_net_validation.py
       hash: md5
-      md5: b6add92b1d459b3b96a8d45b01a590db
-      size: 4815
+      md5: aa7a9973e52c3d44d877351e0eb36bdd
+      size: 4847
     params:
       params.yaml:
         neural_net:

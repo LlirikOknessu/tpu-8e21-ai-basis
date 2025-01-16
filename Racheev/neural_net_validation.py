@@ -70,9 +70,11 @@ if __name__ == '__main__':
     input_model = Path(args.input_model)
     baseline_model_path = Path(args.baseline_model)
     logs_path = Path(args.logs_dir)
+    '''
     if logs_path.exists():
         shutil.rmtree(logs_path)
-    logs_path.mkdir(parents=True)
+    '''
+    logs_path.mkdir(exist_ok=True,parents=True)
 
     baseline_model_path = Path(args.baseline_model)
 

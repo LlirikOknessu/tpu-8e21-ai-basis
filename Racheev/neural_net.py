@@ -77,9 +77,7 @@ if __name__ == '__main__':
     output_dir = Path(args.output_dir)
     baseline_model_path = Path(args.baseline_model)
     logs_path = Path(args.logs_dir)
-    if logs_path.exists():
-        shutil.rmtree(logs_path)
-    logs_path.mkdir(parents=True)
+    logs_path.mkdir(exist_ok=True, parents=True)
 
     output_dir.mkdir(exist_ok=True, parents=True)
     output_model_keras_path = output_dir / (args.model_name + '.keras')
