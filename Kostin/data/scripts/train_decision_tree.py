@@ -2,8 +2,9 @@ import argparse
 import os
 import joblib
 import pandas as pd
+import numpy as np
 
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.tree import DecisionTreeRegressor, plot_tree
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 import matplotlib.pyplot as plt
@@ -24,6 +25,34 @@ def plot_metrics(y_test, y_pred, output_dir):
     plt.title('Actual vs Predicted')
     os.makedirs(output_dir, exist_ok=True)
     plt.savefig(os.path.join(output_dir, 'decision_tree_actual_vs_predicted.png'), dpi=300)
+    plt.close()
+
+def plot_training_loss(model, X_train, y_train, output_dir):
+    """Save a plot of training loss during the decision tree training process."""
+    train_loss = []
+    for depth in range(1, model.get_depth() + 1):
+        temp_model = DecisionTreeRegressor(max_depth=depth, random_state=42)
+        temp_model.fit(X_train, y_train)
+        y_pred_train = temp_model.predict(X_train)
+        loss = mean_squared_error(y_train, y_pred_train)
+        train_loss.append(loss)
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(range(1, len(train_loss) + 1), train_loss, marker='o', color='blue')
+    plt.xlabel('Tree Depth')
+    plt.ylabel('Training Loss (MSE)')
+    plt.title('Training Loss vs Tree Depth')
+    plt.grid(True)
+    os.makedirs(output_dir, exist_ok=True)
+    plt.savefig(os.path.join(output_dir, 'decision_tree_training_loss.png'), dpi=300)
+    plt.close()
+
+def plot_decision_tree(model, feature_names, output_dir):
+    """Save the first few levels of the decision tree as an image."""
+    plt.figure(figsize=(20, 10))
+    plot_tree(model, feature_names=feature_names, max_depth=3, filled=True, fontsize=10)
+    os.makedirs(output_dir, exist_ok=True)
+    plt.savefig(os.path.join(output_dir, 'decision_tree_structure.png'), dpi=300)
     plt.close()
 
 def main():
@@ -60,7 +89,10 @@ def main():
         f.write(f"R2: {r2:.3f}\n")
         f.write(f"RMSE: {rmse:.2f}\n")
         f.write(f"MAE: {mae:.2f}\n")
+
     plot_metrics(y_test, y_pred, args.metrics_output)
+    plot_training_loss(model, X_train, y_train, args.metrics_output)
+    plot_decision_tree(model, X.columns, args.metrics_output)
 
     os.makedirs(os.path.dirname(args.model_output), exist_ok=True)
     joblib.dump(model, args.model_output)

@@ -168,7 +168,6 @@ Kostin/RESERVED!
 Kostin/data/logs
 Kostin/data/metrics
 Kostin/data/graphs
-Kostin/data/dvc.lock
 Kostin/data/catboost_info/catboost_training.json
 Kostin/data/catboost_info/learn_error.tsv
 Kostin/data/catboost_info/time_left.tsv

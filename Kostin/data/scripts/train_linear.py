@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 import matplotlib.pyplot as plt
+import numpy as np
 
 def prepare_regression_data(df):
     df_temp = pd.get_dummies(df.copy(), columns=['sex', 'smoker', 'region'], drop_first=True)
@@ -24,6 +25,35 @@ def plot_metrics(y_test, y_pred, output_dir):
     plt.title('Actual vs Predicted')
     os.makedirs(output_dir, exist_ok=True)
     plt.savefig(os.path.join(output_dir, 'linear_regression_actual_vs_predicted.png'), dpi=300)
+    plt.close()
+
+def plot_weight_distribution(model, feature_names, output_dir):
+    """Save a bar plot of feature weights."""
+    weights = model.coef_
+    plt.figure(figsize=(10, 6))
+    plt.barh(feature_names, weights, color='skyblue')
+    plt.xlabel('Weight')
+    plt.ylabel('Feature')
+    plt.title('Feature Weights Distribution')
+    plt.tight_layout()
+    os.makedirs(output_dir, exist_ok=True)
+    plt.savefig(os.path.join(output_dir, 'linear_regression_weights.png'), dpi=300)
+    plt.close()
+
+def calculate_loss_curve(y_test, y_pred, output_dir):
+    """Save a plot of loss values (RMSE) for visualization."""
+    residuals = np.abs(y_test - y_pred)
+    sorted_residuals = np.sort(residuals)
+    cumulative_loss = np.cumsum(sorted_residuals) / np.sum(sorted_residuals)
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(np.linspace(0, 1, len(cumulative_loss)), cumulative_loss, label='Loss Curve')
+    plt.xlabel('Proportion of Predictions')
+    plt.ylabel('Cumulative Loss (Normalized)')
+    plt.title('Loss Curve')
+    plt.legend()
+    plt.grid()
+    plt.savefig(os.path.join(output_dir, 'loss_curve.png'), dpi=300)
     plt.close()
 
 def main():
@@ -58,6 +88,8 @@ def main():
         f.write(f"MAE: {mae:.2f}\n")
 
     plot_metrics(y_test, y_pred, args.metrics_output)
+    plot_weight_distribution(model, X.columns, args.metrics_output)
+    calculate_loss_curve(y_test, y_pred, args.metrics_output)
 
     os.makedirs(os.path.dirname(args.output), exist_ok=True)
     joblib.dump(model, args.output)

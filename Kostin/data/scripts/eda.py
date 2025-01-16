@@ -12,6 +12,13 @@ def save_plot(filename):
     plt.savefig(f"{dir_name}/{filename}", dpi=300, bbox_inches='tight')
     plt.close()
 
+def remove_invalid_columns(data):
+    """Remove columns with invalid or unexpected names."""
+    invalid_cols = [col for col in data.columns if not col.isidentifier()]
+    if invalid_cols:
+        print(f"[INFO] Removed invalid columns: {invalid_cols}")
+    return data.drop(columns=invalid_cols)
+
 def main():
     parser = argparse.ArgumentParser(description="Perform EDA on cleaned data.")
     parser.add_argument("--input", required=True, help="Path to cleaned CSV file.")
@@ -20,6 +27,9 @@ def main():
     df = pd.read_csv(args.input)
     print(f"[INFO] EDA on {args.input}, shape={df.shape}")
 
+    # Remove invalid columns
+    df = remove_invalid_columns(df)
+
     num_cols = ['age', 'bmi', 'children', 'charges']
     cat_cols = ['sex', 'smoker', 'region']
     sns.set_theme(color_codes=True)
@@ -27,9 +37,10 @@ def main():
     # 1) Гистограммы числовых данных
     plt.figure(figsize=(12, 8))
     for i, col in enumerate(num_cols, 1):
-        plt.subplot(2, 2, i)
-        sns.histplot(df[col], kde=True, bins=30, color="blue")
-        plt.title(f"Distribution of {col}")
+        if col in df.columns:
+            plt.subplot(2, 2, i)
+            sns.histplot(df[col], kde=True, bins=30, color="blue")
+            plt.title(f"Distribution of {col}")
     plt.tight_layout()
     save_plot("01_numeric_distributions.png")
 
@@ -50,9 +61,11 @@ def main():
         save_plot("03_correlation_heatmap.png")
 
     # 4) Парные диаграммы (pairplot)
-    sns.pairplot(df[num_cols], diag_kind="kde", corner=True)
-    plt.suptitle("Pairplot of Numeric Features", y=1.02)
-    save_plot("04_pairplot_numeric_features.png")
+    valid_num_cols = [col for col in num_cols if col in df.columns]
+    if valid_num_cols:
+        sns.pairplot(df[valid_num_cols], diag_kind="kde", corner=True)
+        plt.suptitle("Pairplot of Numeric Features", y=1.02)
+        save_plot("04_pairplot_numeric_features.png")
 
     print("[INFO] EDA completed. Graphs saved in graphs/<time>")
 

@@ -27,6 +27,20 @@ def plot_metrics(y_test, y_pred, output_dir):
     plt.savefig(os.path.join(output_dir, 'catboost_actual_vs_predicted.png'), dpi=300)
     plt.close()
 
+def plot_feature_importance(model, feature_names, output_dir):
+    """Save feature importance plot."""
+    feature_importances = model.get_feature_importance()
+    sorted_idx = feature_importances.argsort()
+
+    plt.figure(figsize=(10, 6))
+    plt.barh(range(len(feature_importances)), feature_importances[sorted_idx], align='center', color='skyblue')
+    plt.yticks(range(len(feature_importances)), [feature_names[i] for i in sorted_idx])
+    plt.xlabel('Feature Importance')
+    plt.title('CatBoost Feature Importance')
+    os.makedirs(output_dir, exist_ok=True)
+    plt.savefig(os.path.join(output_dir, 'catboost_feature_importance.png'), dpi=300)
+    plt.close()
+
 def main():
     parser = argparse.ArgumentParser(description="Train a CatBoost regression model.")
     parser.add_argument("--input", required=True, help="Path to input CSV file.")
@@ -63,6 +77,8 @@ def main():
         f.write(f"MAE: {mae:.2f}\n")
 
     plot_metrics(y_test, y_pred, args.metrics_output)
+    plot_feature_importance(model, X.columns, args.metrics_output)
+
     os.makedirs(os.path.dirname(args.model_output), exist_ok=True)
     joblib.dump(model, args.model_output)
     print(f"[INFO] Model saved to {args.model_output}")

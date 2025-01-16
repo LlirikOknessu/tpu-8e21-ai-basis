@@ -25,6 +25,11 @@ def filter_charges_threshold(data, column, max_value):
     """Remove rows where charges exceed a maximum value."""
     return data[data[column] <= max_value]
 
+def remove_invalid_columns(data, invalid_keywords):
+    """Remove columns that contain invalid keywords in their names."""
+    columns_to_remove = [col for col in data.columns if any(keyword in col for keyword in invalid_keywords)]
+    return data.drop(columns=columns_to_remove), columns_to_remove
+
 def main():
     parser = argparse.ArgumentParser(description="Preprocess insurance dataset.")
     parser.add_argument("--input", required=True, help="Path to raw CSV file (e.g. raw/insurance.csv)")
@@ -32,10 +37,15 @@ def main():
     parser.add_argument("--predicted", required=False, help="Optional column for predicted values to filter extreme differences.")
     parser.add_argument("--max_distance", type=float, required=False, default=5000, help="Maximum distance from Actual = Predicted line to keep rows (default: 5000).")
     parser.add_argument("--max_charges", type=float, required=False, default=None, help="Maximum allowed value for charges (default: None).")
+    parser.add_argument("--invalid_keywords", nargs="*", required=False, default=["1639"], help="Keywords to identify invalid columns.")
     args = parser.parse_args()
 
     df = pd.read_csv(args.input)
     df = df.drop_duplicates().dropna()
+
+    # Remove invalid columns
+    df, removed_columns = remove_invalid_columns(df, args.invalid_keywords)
+    print(f"[INFO] Removed columns: {removed_columns}")
 
     # Фильтрация выбросов по 'charges'
     if 'charges' in df.columns:
