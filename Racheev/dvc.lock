@@ -10,8 +10,8 @@ stages:
       nfiles: 7
     - path: data_preparation.py
       hash: md5
-      md5: 432f28c37d67c5cbdb44ede41a8f7892
-      size: 17757
+      md5: d286ae3772196e3919ecae7465f284d0
+      size: 18524
     params:
       params.yaml:
         data_preparation:
@@ -21,16 +21,16 @@ stages:
     outs:
     - path: data/prepared
       hash: md5
-      md5: b841b212bfa1a69685b31b997545c095.dir
-      size: 712642
+      md5: 58f5a33700977898ef11a5d157dc9a23.dir
+      size: 779846
       nfiles: 8
   linear_regression:
     cmd: python lin_regression.py -id data/prepared -od data/models -mn LinearRegression
     deps:
     - path: data/prepared
       hash: md5
-      md5: b841b212bfa1a69685b31b997545c095.dir
-      size: 712642
+      md5: 58f5a33700977898ef11a5d157dc9a23.dir
+      size: 779846
       nfiles: 8
     - path: lin_regression.py
       hash: md5
@@ -43,24 +43,24 @@ stages:
     outs:
     - path: data/models/LinearRegression.csv
       hash: md5
-      md5: 11d5faa037ca4abfafb9df6c1eeb1308
-      size: 245
+      md5: c557f02a78441b4a18a52265d9709464
+      size: 271
     - path: data/models/LinearRegression.joblib
       hash: md5
-      md5: 0b3f0a05fd73a021ae8d40df4bd16586
-      size: 1135
+      md5: 59d8d070a9e8a963e392d8670b1078ec
+      size: 1167
   linear_regression_validation:
     cmd: python linear_regression_validation.py -id data/prepared/ -im data/models/LinearRegression.joblib
       -mn LinearRegression
     deps:
     - path: data/models/LinearRegression.joblib
       hash: md5
-      md5: 0b3f0a05fd73a021ae8d40df4bd16586
-      size: 1135
+      md5: 59d8d070a9e8a963e392d8670b1078ec
+      size: 1167
     - path: data/prepared/
       hash: md5
-      md5: b841b212bfa1a69685b31b997545c095.dir
-      size: 712642
+      md5: 58f5a33700977898ef11a5d157dc9a23.dir
+      size: 779846
       nfiles: 8
     - path: linear_regression_validation.py
       hash: md5
@@ -75,12 +75,12 @@ stages:
     deps:
     - path: data/models/LinearRegression.joblib
       hash: md5
-      md5: 0b3f0a05fd73a021ae8d40df4bd16586
-      size: 1135
+      md5: 59d8d070a9e8a963e392d8670b1078ec
+      size: 1167
     - path: data/prepared
       hash: md5
-      md5: b841b212bfa1a69685b31b997545c095.dir
-      size: 712642
+      md5: 58f5a33700977898ef11a5d157dc9a23.dir
+      size: 779846
       nfiles: 8
     - path: lin_regression_full.py
       hash: md5
@@ -93,24 +93,24 @@ stages:
     outs:
     - path: data/models/LinearRegression_prod.csv
       hash: md5
-      md5: 22dd4361c03d8b255b51f1b82984a4c5
-      size: 243
+      md5: b180a569faace79444402bbc6de8d9d6
+      size: 272
     - path: data/models/LinearRegression_prod.joblib
       hash: md5
-      md5: d8a37dff1c58c6d0784bc5f83d0a04f0
-      size: 1135
+      md5: d647df9232b8b96e6dede94036628948
+      size: 1167
   decision_tree@DecisionTree:
     cmd: python decision_tree.py -id data/prepared -od data/models -bm data/models/LinearRegression_prod.joblib
       -mn DecisionTree -p params.yaml
     deps:
     - path: data/models/LinearRegression_prod.joblib
       hash: md5
-      md5: d8a37dff1c58c6d0784bc5f83d0a04f0
-      size: 1135
+      md5: d647df9232b8b96e6dede94036628948
+      size: 1167
     - path: data/prepared
       hash: md5
-      md5: b841b212bfa1a69685b31b997545c095.dir
-      size: 712642
+      md5: 58f5a33700977898ef11a5d157dc9a23.dir
+      size: 779846
       nfiles: 8
     - path: decision_tree.py
       hash: md5
@@ -191,20 +191,20 @@ stages:
     outs:
     - path: data/models/DecisionTree.joblib
       hash: md5
-      md5: 84f786d88600a5034ce328141f54ce95
-      size: 34831
+      md5: 04a3811d68b3e81d14ac89d53e7cfe66
+      size: 34719
   decision_tree@RandomForest:
     cmd: python decision_tree.py -id data/prepared -od data/models -bm data/models/LinearRegression_prod.joblib
       -mn RandomForest -p params.yaml
     deps:
     - path: data/models/LinearRegression_prod.joblib
       hash: md5
-      md5: d8a37dff1c58c6d0784bc5f83d0a04f0
-      size: 1135
+      md5: d647df9232b8b96e6dede94036628948
+      size: 1167
     - path: data/prepared
       hash: md5
-      md5: b841b212bfa1a69685b31b997545c095.dir
-      size: 712642
+      md5: 58f5a33700977898ef11a5d157dc9a23.dir
+      size: 779846
       nfiles: 8
     - path: decision_tree.py
       hash: md5
@@ -285,20 +285,20 @@ stages:
     outs:
     - path: data/models/RandomForest.joblib
       hash: md5
-      md5: 6711318a12378630d40ddac726c1344f
-      size: 300991
+      md5: 7bd13e6ac98b528c6fcd22841f960b2a
+      size: 297855
   decision_tree@ExtraTree:
     cmd: python decision_tree.py -id data/prepared -od data/models -bm data/models/LinearRegression_prod.joblib
       -mn ExtraTree -p params.yaml
     deps:
     - path: data/models/LinearRegression_prod.joblib
       hash: md5
-      md5: d8a37dff1c58c6d0784bc5f83d0a04f0
-      size: 1135
+      md5: d647df9232b8b96e6dede94036628948
+      size: 1167
     - path: data/prepared
       hash: md5
-      md5: b841b212bfa1a69685b31b997545c095.dir
-      size: 712642
+      md5: 58f5a33700977898ef11a5d157dc9a23.dir
+      size: 779846
       nfiles: 8
     - path: decision_tree.py
       hash: md5
@@ -379,24 +379,24 @@ stages:
     outs:
     - path: data/models/ExtraTree.joblib
       hash: md5
-      md5: 4617ebacc8836615fb0022b90992b5a4
-      size: 334583
+      md5: 31cfafd230e66d21e926892ec9cfd00a
+      size: 242119
   decision_tree_validation@DecisionTree:
     cmd: python decision_tree_validation.py -id data/prepared/ -im data/models/DecisionTree.joblib
       -bm data/models/LinearRegression_prod.joblib -mn DecisionTree
     deps:
     - path: data/models/DecisionTree.joblib
       hash: md5
-      md5: 84f786d88600a5034ce328141f54ce95
-      size: 34831
+      md5: 04a3811d68b3e81d14ac89d53e7cfe66
+      size: 34719
     - path: data/models/LinearRegression_prod.joblib
       hash: md5
-      md5: d8a37dff1c58c6d0784bc5f83d0a04f0
-      size: 1135
+      md5: d647df9232b8b96e6dede94036628948
+      size: 1167
     - path: data/prepared/
       hash: md5
-      md5: b841b212bfa1a69685b31b997545c095.dir
-      size: 712642
+      md5: 58f5a33700977898ef11a5d157dc9a23.dir
+      size: 779846
       nfiles: 8
     - path: decision_tree_validation.py
       hash: md5
@@ -480,16 +480,16 @@ stages:
     deps:
     - path: data/models/LinearRegression_prod.joblib
       hash: md5
-      md5: d8a37dff1c58c6d0784bc5f83d0a04f0
-      size: 1135
+      md5: d647df9232b8b96e6dede94036628948
+      size: 1167
     - path: data/models/RandomForest.joblib
       hash: md5
-      md5: 6711318a12378630d40ddac726c1344f
-      size: 300991
+      md5: 7bd13e6ac98b528c6fcd22841f960b2a
+      size: 297855
     - path: data/prepared/
       hash: md5
-      md5: b841b212bfa1a69685b31b997545c095.dir
-      size: 712642
+      md5: 58f5a33700977898ef11a5d157dc9a23.dir
+      size: 779846
       nfiles: 8
     - path: decision_tree_validation.py
       hash: md5
@@ -573,16 +573,16 @@ stages:
     deps:
     - path: data/models/ExtraTree.joblib
       hash: md5
-      md5: 4617ebacc8836615fb0022b90992b5a4
-      size: 334583
+      md5: 31cfafd230e66d21e926892ec9cfd00a
+      size: 242119
     - path: data/models/LinearRegression_prod.joblib
       hash: md5
-      md5: d8a37dff1c58c6d0784bc5f83d0a04f0
-      size: 1135
+      md5: d647df9232b8b96e6dede94036628948
+      size: 1167
     - path: data/prepared/
       hash: md5
-      md5: b841b212bfa1a69685b31b997545c095.dir
-      size: 712642
+      md5: 58f5a33700977898ef11a5d157dc9a23.dir
+      size: 779846
       nfiles: 8
     - path: decision_tree_validation.py
       hash: md5
@@ -665,12 +665,12 @@ stages:
     deps:
     - path: data/models/DecisionTree.joblib
       hash: md5
-      md5: 84f786d88600a5034ce328141f54ce95
-      size: 34831
+      md5: 04a3811d68b3e81d14ac89d53e7cfe66
+      size: 34719
     - path: data/prepared
       hash: md5
-      md5: b841b212bfa1a69685b31b997545c095.dir
-      size: 712642
+      md5: 58f5a33700977898ef11a5d157dc9a23.dir
+      size: 779846
       nfiles: 8
     - path: decision_tree_full.py
       hash: md5
@@ -751,19 +751,19 @@ stages:
     outs:
     - path: data/models/DecisionTree_prod.joblib
       hash: md5
-      md5: 2f209093618b8649e2c0d26ce120c0ad
-      size: 18785
+      md5: a04814d30166c54f83b7485b8a196b15
+      size: 18657
   decision_tree_prod_version@RandomForest:
     cmd: python decision_tree_full.py -id data/prepared/ -od data/models/ -mn RandomForest
     deps:
     - path: data/models/RandomForest.joblib
       hash: md5
-      md5: 6711318a12378630d40ddac726c1344f
-      size: 300991
+      md5: 7bd13e6ac98b528c6fcd22841f960b2a
+      size: 297855
     - path: data/prepared
       hash: md5
-      md5: b841b212bfa1a69685b31b997545c095.dir
-      size: 712642
+      md5: 58f5a33700977898ef11a5d157dc9a23.dir
+      size: 779846
       nfiles: 8
     - path: decision_tree_full.py
       hash: md5
@@ -844,19 +844,19 @@ stages:
     outs:
     - path: data/models/RandomForest_prod.joblib
       hash: md5
-      md5: 25a69e9565e97a90911cfd6292b13ae8
-      size: 264385
+      md5: 8ea37c83999763499a25178a49768cde
+      size: 264977
   decision_tree_prod_version@ExtraTree:
     cmd: python decision_tree_full.py -id data/prepared/ -od data/models/ -mn ExtraTree
     deps:
     - path: data/models/ExtraTree.joblib
       hash: md5
-      md5: 4617ebacc8836615fb0022b90992b5a4
-      size: 334583
+      md5: 31cfafd230e66d21e926892ec9cfd00a
+      size: 242119
     - path: data/prepared
       hash: md5
-      md5: b841b212bfa1a69685b31b997545c095.dir
-      size: 712642
+      md5: 58f5a33700977898ef11a5d157dc9a23.dir
+      size: 779846
       nfiles: 8
     - path: decision_tree_full.py
       hash: md5
@@ -937,8 +937,8 @@ stages:
     outs:
     - path: data/models/ExtraTree_prod.joblib
       hash: md5
-      md5: ddb841c6cc25c48baceb94fb0dbc9e8f
-      size: 246241
+      md5: d1261d91a8ed7b0b2e011dfe343d5009
+      size: 254897
   cat_boosting:
     cmd: python cat_boost.py -id data/prepared/ -od data/models -bm data/models/LinearRegression_prod.joblib
       -mn CatBoostRegressor
@@ -971,8 +971,8 @@ stages:
       size: 2923
     - path: data/prepared
       hash: md5
-      md5: b841b212bfa1a69685b31b997545c095.dir
-      size: 712642
+      md5: 58f5a33700977898ef11a5d157dc9a23.dir
+      size: 779846
       nfiles: 8
     params:
       params.yaml:
@@ -995,8 +995,8 @@ stages:
     outs:
     - path: data/models/CatBoostRegressor.joblib
       hash: md5
-      md5: c99bd9cfa93ac4064f28cc32a8a6f5e2
-      size: 230902
+      md5: d32e8e281369cc137c63906c3cd705aa
+      size: 231190
   cat_boost_validation:
     cmd: python cat_boost_validation.py -id data/prepared/ -im data/models/CatBoostRegressor.joblib
       -bm data/models/LinearRegression_prod.joblib -mn CatBoostRegressor
@@ -1007,16 +1007,16 @@ stages:
       size: 2114
     - path: data/models/CatBoostRegressor.joblib
       hash: md5
-      md5: c99bd9cfa93ac4064f28cc32a8a6f5e2
-      size: 230902
+      md5: d32e8e281369cc137c63906c3cd705aa
+      size: 231190
     - path: data/models/LinearRegression_prod.joblib
       hash: md5
-      md5: d8a37dff1c58c6d0784bc5f83d0a04f0
-      size: 1135
+      md5: d647df9232b8b96e6dede94036628948
+      size: 1167
     - path: data/prepared/
       hash: md5
-      md5: b841b212bfa1a69685b31b997545c095.dir
-      size: 712642
+      md5: 58f5a33700977898ef11a5d157dc9a23.dir
+      size: 779846
       nfiles: 8
     params:
       params.yaml:
@@ -1045,12 +1045,12 @@ stages:
       size: 2611
     - path: data/models/CatBoostRegressor.joblib
       hash: md5
-      md5: c99bd9cfa93ac4064f28cc32a8a6f5e2
-      size: 230902
+      md5: d32e8e281369cc137c63906c3cd705aa
+      size: 231190
     - path: data/prepared
       hash: md5
-      md5: b841b212bfa1a69685b31b997545c095.dir
-      size: 712642
+      md5: 58f5a33700977898ef11a5d157dc9a23.dir
+      size: 779846
       nfiles: 8
     params:
       params.yaml:
@@ -1073,95 +1073,104 @@ stages:
     outs:
     - path: data/models/CatBoostRegressor_prod.joblib
       hash: md5
-      md5: 794800514b64e8e210f136fd408244cd
-      size: 229260
+      md5: fd56802133f4a8b198db440cb3cf35c0
+      size: 227119
   neural_net:
     cmd: python neural_net.py -id data/prepared/ -od data/models -bm data/models/LinearRegression_prod.joblib
       -mn NeuralNet
     deps:
     - path: data/prepared
       hash: md5
-      md5: 7ecfa8988994fcea85d926af86077089.dir
-      size: 508958
+      md5: 58f5a33700977898ef11a5d157dc9a23.dir
+      size: 779846
       nfiles: 8
     - path: neural_net.py
       hash: md5
-      md5: 313b6e50f100f0e9a058f81cb0492d7b
-      size: 9529
+      md5: 0321a16070e40f7ae9c7ccfab4cd8b2f
+      size: 10890
     params:
       params.yaml:
         neural_net:
           model_name: NeuralNet
           NeuralNet:
-            NEURONS_CNT: 8
-            BATCH_SIZE: 64
-            BUFFER_SIZE: 256
+            INPUT_DENSE: 10
+            DENSE_NUMBER: 1
+            NEURONS_CNT_D1: 10
+            NEURONS_CNT_D2: 10
+            BATCH_SIZE: 100
+            BUFFER_SIZE: 400
             LEARNING_RATE: 0.002
-            EPOCHS: 2000
+            EPOCHS: 1000
     outs:
     - path: data/models/NeuralNet.keras
       hash: md5
-      md5: c909c3341140d333f741073dc8a153b1
-      size: 18445
+      md5: 85d9d415928f712adb5d8b53a65d601a
+      size: 17646
   neural_net_validation:
     cmd: python neural_net_validation.py -id data/prepared/ -im data/models/NeuralNet.keras
       -bm data/models/LinearRegression_prod.joblib -mn NeuralNet
     deps:
     - path: data/models/LinearRegression_prod.joblib
       hash: md5
-      md5: c9d461da33d62b21ca7889273c9af486
-      size: 1087
+      md5: d647df9232b8b96e6dede94036628948
+      size: 1167
     - path: data/models/NeuralNet.keras
       hash: md5
-      md5: c909c3341140d333f741073dc8a153b1
-      size: 18445
+      md5: 85d9d415928f712adb5d8b53a65d601a
+      size: 17646
     - path: data/prepared/
       hash: md5
-      md5: 7ecfa8988994fcea85d926af86077089.dir
-      size: 508958
+      md5: 58f5a33700977898ef11a5d157dc9a23.dir
+      size: 779846
       nfiles: 8
     - path: neural_net_validation.py
       hash: md5
-      md5: aa7a9973e52c3d44d877351e0eb36bdd
-      size: 4847
+      md5: f84f81499d94b4e9108f9119aa376be2
+      size: 5667
     params:
       params.yaml:
         neural_net:
           model_name: NeuralNet
           NeuralNet:
-            NEURONS_CNT: 8
-            BATCH_SIZE: 64
-            BUFFER_SIZE: 256
+            INPUT_DENSE: 10
+            DENSE_NUMBER: 1
+            NEURONS_CNT_D1: 10
+            NEURONS_CNT_D2: 10
+            BATCH_SIZE: 100
+            BUFFER_SIZE: 400
             LEARNING_RATE: 0.002
-            EPOCHS: 2000
+            EPOCHS: 1000
   neural_net_prod_version:
     cmd: python neural_net_full.py -id data/prepared/ -od data/models/ -mn NeuralNet
     deps:
     - path: data/models/NeuralNet.keras
       hash: md5
-      md5: c909c3341140d333f741073dc8a153b1
-      size: 18445
+      md5: 85d9d415928f712adb5d8b53a65d601a
+      size: 17646
     - path: data/prepared
       hash: md5
-      md5: 7ecfa8988994fcea85d926af86077089.dir
-      size: 508958
+      md5: 58f5a33700977898ef11a5d157dc9a23.dir
+      size: 779846
       nfiles: 8
     - path: neural_net_full.py
       hash: md5
-      md5: 15208c69063a48b3c33b3429502cb558
-      size: 7692
+      md5: 179133ff9928d4e44ce698d9fced80e4
+      size: 8964
     params:
       params.yaml:
         neural_net:
           model_name: NeuralNet
           NeuralNet:
-            NEURONS_CNT: 8
-            BATCH_SIZE: 64
-            BUFFER_SIZE: 256
+            INPUT_DENSE: 10
+            DENSE_NUMBER: 1
+            NEURONS_CNT_D1: 10
+            NEURONS_CNT_D2: 10
+            BATCH_SIZE: 100
+            BUFFER_SIZE: 400
             LEARNING_RATE: 0.002
-            EPOCHS: 2000
+            EPOCHS: 1000
     outs:
     - path: data/models/NeuralNet_prod.keras
       hash: md5
-      md5: b31ad9835cbc4316ebf5f040c5ecd9d2
-      size: 37038
+      md5: 254caf2d9a38eb7621526df872b9bc31
+      size: 17646

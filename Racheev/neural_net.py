@@ -19,26 +19,40 @@ import random
 
 @tf.keras.utils.register_keras_serializable()
 class NeuralNet(Model):
-    def __init__(self, neurons_cnt=128, **kwargs):
+    def __init__(self, neurons_cnt_input = 8, dense_number = 2, neurons_cnt_d1 = 128, neurons_cnt_d2 = 128, **kwargs):
         super(NeuralNet, self).__init__(**kwargs)
-        self.neurons_cnt = neurons_cnt  # Сохраняем значение параметра для конфигурации
-        self.d_in = Dense(9, activation='relu')
-        self.d1 = Dense(neurons_cnt, activation='relu')
-        self.d2 = Dense(neurons_cnt, activation='relu')
+        self.neurons_cnt_input = neurons_cnt_input  # Сохраняем значение параметра для конфигурации
+        self.dense_number = dense_number
+        self.neurons_cnt_d1 = neurons_cnt_d1
+        self.neurons_cnt_d2 = neurons_cnt_d2
+        self.d_in = Dense(neurons_cnt_input, activation='relu')
+        self.d1 = Dense(neurons_cnt_d1, activation='relu')
+        self.d2 = Dense(neurons_cnt_d2, activation='relu')
         self.d_out = Dense(1, activation='sigmoid')
 
     def call(self, x):
         x = self.d_in(x)
         x = self.d1(x)
-        x = self.d2(x)
+        if (self.dense_number == 2):
+            x = self.d2(x)
         return self.d_out(x)
 
     def get_config(self):
         # Возвращаем параметры модели, включая кастомные
         config = super(NeuralNet, self).get_config()
-        config.update({
-            "neurons_cnt": self.neurons_cnt  # Добавляем кастомный параметр в конфигурацию
-        })
+        if (self.dense_number == 2):
+            config.update({
+                "neurons_cnt_input": self.neurons_cnt_input,  #  Добавляем кастомный параметр в конфигурацию
+                "dense_number": self.dense_number,
+                "neurons_cnt_d1": self.neurons_cnt_d1,
+                "neurons_cnt_d2": self.neurons_cnt_d2
+            })
+        else:
+            config.update({
+                "neurons_cnt_input": self.neurons_cnt_input,  # Добавляем кастомный параметр в конфигурацию
+                "dense_number": self.dense_number,
+                "neurons_cnt_d1": self.neurons_cnt_d1
+            })
         return config
 
     @classmethod
@@ -99,8 +113,11 @@ if __name__ == '__main__':
     test_ds = tf.data.Dataset.from_tensor_slices((X_test, y_test)).batch(parameters[args.model_name]['BATCH_SIZE'])
 
     # Create an instance of the model
-    NN_model = NeuralNet_MODELS_MAPPER.get(args.model_name)(parameters[args.model_name]['NEURONS_CNT'])
-    NN_model.build(input_shape=(None, 8))
+    NN_model = NeuralNet_MODELS_MAPPER.get(args.model_name)(parameters[args.model_name]['INPUT_DENSE'],
+                                                            parameters[args.model_name]['DENSE_NUMBER'],
+                                                            parameters[args.model_name]['NEURONS_CNT_D1'],
+                                                            parameters[args.model_name]['NEURONS_CNT_D2'])
+    NN_model.build(input_shape=(None, parameters[args.model_name]['INPUT_DENSE']))
 
     loss_object = tf.keras.losses.MeanSquaredError()# Определение функции потерь
     optimizer = tf.keras.optimizers.SGD(learning_rate=parameters[args.model_name]['LEARNING_RATE'])# Определение оптимизатора
@@ -176,6 +193,9 @@ if __name__ == '__main__':
             tf.summary.scalar('loss', test_loss.result(), step=epoch)
             tf.summary.scalar('mae', test_mae.result(), step=epoch)
             tf.summary.scalar('accuracy', test_accuracy.result(), step=epoch)
+
+
+
         '''
         template = 'Epoch {}, Loss: {}, MAE: {}, Test Loss: {}, Test MAE: {}'
         print(template.format(epoch + 1,
@@ -185,7 +205,7 @@ if __name__ == '__main__':
                               test_mae.result()))
         '''
         if (epoch//100  != ep_buff):
-            ep_buff = (epoch)//100
+            ep_buff = (epoch-1)//100
             template = 'Epoch {}, Loss: {}, MAE: {}, Accuracy: {}, Test Loss: {}, Test MAE: {}, Accuracy: {}'
             print(template.format(epoch + 1,
                                   train_loss.result(),
@@ -209,10 +229,13 @@ if __name__ == '__main__':
             profiler_outdir=str(logdir) ###################
         )
 
+    print(NN_model.get_config())
+    print(NN_model.get_weights())
+
     NN_model.save(output_model_keras_path)#
 
     #Проверка загрузки
-    loaded_model = keras.models.load_model(output_model_keras_path, NeuralNet_MODELS_MAPPER)
+    loaded_model = keras.models.load_model(output_model_keras_path)
     print(np.testing.assert_allclose(NN_model.predict(X_test),loaded_model.predict(X_test)))
 
 

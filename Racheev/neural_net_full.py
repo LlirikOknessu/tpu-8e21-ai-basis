@@ -19,26 +19,40 @@ import random
 
 @tf.keras.utils.register_keras_serializable()
 class NeuralNet(Model):
-    def __init__(self, neurons_cnt=128, **kwargs):
+    def __init__(self, neurons_cnt_input = 8, dense_number = 2, neurons_cnt_d1 = 128, neurons_cnt_d2 = 128, **kwargs):
         super(NeuralNet, self).__init__(**kwargs)
-        self.neurons_cnt = neurons_cnt  # Сохраняем значение параметра для конфигурации
-        self.d_in = Dense(9, activation='relu')
-        self.d1 = Dense(neurons_cnt, activation='relu')
-        self.d2 = Dense(neurons_cnt, activation='relu')
+        self.neurons_cnt_input = neurons_cnt_input  # Сохраняем значение параметра для конфигурации
+        self.dense_number = dense_number
+        self.neurons_cnt_d1 = neurons_cnt_d1
+        self.neurons_cnt_d2 = neurons_cnt_d2
+        self.d_in = Dense(neurons_cnt_input, activation='relu')
+        self.d1 = Dense(neurons_cnt_d1, activation='relu')
+        self.d2 = Dense(neurons_cnt_d2, activation='relu')
         self.d_out = Dense(1, activation='sigmoid')
 
     def call(self, x):
         x = self.d_in(x)
         x = self.d1(x)
-        x = self.d2(x)
+        if (self.dense_number == 2):
+            x = self.d2(x)
         return self.d_out(x)
 
     def get_config(self):
         # Возвращаем параметры модели, включая кастомные
         config = super(NeuralNet, self).get_config()
-        config.update({
-            "neurons_cnt": self.neurons_cnt  # Добавляем кастомный параметр в конфигурацию
-        })
+        if (self.dense_number == 2):
+            config.update({
+                "neurons_cnt_input": self.neurons_cnt_input,  #  Добавляем кастомный параметр в конфигурацию
+                "dense_number": self.dense_number,
+                "neurons_cnt_d1": self.neurons_cnt_d1,
+                "neurons_cnt_d2": self.neurons_cnt_d2
+            })
+        else:
+            config.update({
+                "neurons_cnt_input": self.neurons_cnt_input,  # Добавляем кастомный параметр в конфигурацию
+                "dense_number": self.dense_number,
+                "neurons_cnt_d1": self.neurons_cnt_d1
+            })
         return config
 
     @classmethod
@@ -50,7 +64,8 @@ class NeuralNet(Model):
 NeuralNet_MODELS_MAPPER = {'NeuralNet': NeuralNet}
 
 NeuralNet_MODELS_BEST_PARAMETERS = {
-    'NeuralNet': {'NEURONS_CNT': 8, 'BATCH_SIZE': 64, 'BUFFER_SIZE': 256, 'LEARNING_RATE': 0.002, 'EPOCHS': 2000}}
+    'NeuralNet': {'INPUT_DENSE' : 10, 'DENSE_NUMBER' : 2,'NEURONS_CNT_D1' : 10, 'NEURONS_CNT_D2' : 10,
+        'BATCH_SIZE' : 64, 'BUFFER_SIZE' : 256, 'LEARNING_RATE' : 0.002, 'EPOCHS' : 100}}
 
 def parser_args_for_sac():
     parser = argparse.ArgumentParser(description='Paths parser')
@@ -99,8 +114,11 @@ if __name__ == '__main__':
         best_params['BUFFER_SIZE']).batch(best_params['BATCH_SIZE'])
 
     # Create an instance of the model
-    NN_model = NeuralNet_MODELS_MAPPER.get(args.model_name)(neurons_cnt=64)
-    NN_model.build(input_shape=(None, 8))
+    NN_model = NeuralNet_MODELS_MAPPER.get(args.model_name)(parameters[args.model_name]['INPUT_DENSE'],
+                                                            parameters[args.model_name]['DENSE_NUMBER'],
+                                                            parameters[args.model_name]['NEURONS_CNT_D1'],
+                                                            parameters[args.model_name]['NEURONS_CNT_D2'])
+    NN_model.build(input_shape=(None, parameters[args.model_name]['INPUT_DENSE']))
 
     loss_object = tf.keras.losses.MeanSquaredError()  # Определение функции потерь
     optimizer = tf.keras.optimizers.SGD(

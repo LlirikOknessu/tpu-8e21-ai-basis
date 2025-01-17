@@ -169,7 +169,10 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
     # Удаление строк с электромобилем
     car_table = car_table.drop(car_table[car_table['fuel'] == 'Electric'].index)
 
+
+
     # Преобразование года автомобиля
+    car_table['yearold'] = car_table['year']
     car_table['year'] = car_table['year'].where(car_table['year'] >= 2000, 2000)
 
     #Добавление признака средней стоимости по бренду и году
@@ -182,7 +185,17 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
 
     #Редактирование столбца пройденного расстояния
     #
-    car_table['km_dr_gr'] = np.where(car_table['km_driven'] > 0, np.log(car_table['km_driven'])/np.log(10), 0)
+    #car_table['km_dr_gr'] = np.where(car_table['km_driven'] > 0, np.log(car_table['km_driven'])/np.log(10), 0)
+    car_table['km_dr_gr'] = car_table['km_dr_gr'] = np.log(car_table['km_driven']+2)/np.log(10)
+
+    #Признак пробега к году
+    car_table['year_feat'] = 2021 - car_table['yearold']
+    car_table['year_feat'] = car_table['year_feat'] / car_table['year_feat'].max()
+
+    #car_table['yeardkm'] = (car_table['year_feat']) / (car_table['km_dr_gr'])
+
+    car_table.drop(columns='year_feat', inplace=True)
+    car_table.drop(columns='yearold', inplace=True)
     '''
     car_table['km_dr_gr'] = pd.qcut(car_table['km_driven'], 3)
     qkm = car_table.groupby(['km_dr_gr'])['selling_price'].mean()
@@ -213,6 +226,10 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
     car_table['mpow_val'] = car_table['max_power'].apply(words, word_numb=1)
     car_table['mpow_val'] = car_table['mpow_val'].str.replace('bhp', '-1')
     car_table['mpow_val'] = car_table['mpow_val'].astype(float)
+
+    car_table['engine'] = car_table['engine'].fillna("-1")
+    car_table['eng_val'] = car_table['engine'].apply(words, word_numb=1)
+    car_table['eng_val'] = car_table['eng_val'].astype(np.int32)
     #step = 2.5 * math.pow(10, 1)
     #car_table['mpow_val_d'] = (((car_table['mpow_val']) + step / 2) // step) * step
     #car_table.drop(columns=['mpow_val'], inplace=True)
@@ -226,11 +243,11 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
 
     if (short == True):
         # Удаление строк без мощности
-        car_table = car_table[car_table['mpow_val'] > 0]
+        car_table = car_table[(car_table['mpow_val'] > 0) & (car_table['eng_val'] > 0)]
         car_table['mpow_val'] = car_table[car_table['mpow_val'] > 0]['mpow_val'].apply(np.round).astype(int)
         #
-    else:
-        car_table['mpow_val'] = car_table['mpow_val'].apply(np.round).astype(int)
+    #else:
+        #car_table['mpow_val'] = car_table['mpow_val'].apply(np.round).astype(int)
 
     car_table = to_categorical(car_table)
     #нормализация
