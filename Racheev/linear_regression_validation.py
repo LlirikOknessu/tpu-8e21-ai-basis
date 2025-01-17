@@ -5,7 +5,7 @@ import yaml
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import Ridge
-from sklearn.metrics import mean_absolute_error, mean_squared_error #, r2_score
+from sklearn.metrics import mean_absolute_error, mean_squared_error
 from joblib import load
 
 LINEAR_MODELS_MAPPER = {'Ridge': Ridge,
@@ -44,8 +44,11 @@ if __name__ == '__main__':
     rmse = np.sqrt(mse)
 
     print("Model R2: ", reg.score(X_val, y_val))
-    print("Mean apt salary: ", y_mean)
+    print("Mean selling price: ", y_mean)
     print("Baseline MAE: ", mean_absolute_error(y_val, y_pred_baseline))
     print("Model MAE: ", mean_absolute_error(y_val, predicted_values))
+    print("Baseline MSE: ", mean_squared_error(y_val, y_pred_baseline))
+    print("Model MSE: ", mean_squared_error(y_val, predicted_values))
     print("Model RMSE: ", rmse)
+
     #print("Model R2: ", r2_score(y_val, predicted_values))

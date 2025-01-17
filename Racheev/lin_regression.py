@@ -5,7 +5,7 @@ import yaml
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import Ridge
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_absolute_error, mean_squared_error
 from joblib import dump
 
 LINEAR_MODELS_MAPPER = {'Ridge': Ridge,
@@ -49,10 +49,12 @@ if __name__ == '__main__':
 
     predicted_values = np.squeeze(reg.predict(X_test))
 
-    print(reg.score(X_test, y_test))
-    print("Mean apt salary: ", y_mean)
+    print("Model R2: ", reg.score(X_test, y_test))
+    print("Mean selling price: ", y_mean)
     print("Baseline MAE: ", mean_absolute_error(y_test, y_pred_baseline))
     print("Model MAE: ", mean_absolute_error(y_test, predicted_values))
+    print("Baseline MSE: ", mean_squared_error(y_test, y_pred_baseline))
+    print("Model MSE: ", mean_squared_error(y_test, predicted_values))
 
     intercept = reg.intercept_.astype(float)
     coefficients = reg.coef_.astype(float)

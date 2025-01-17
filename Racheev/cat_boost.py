@@ -4,7 +4,7 @@ from pathlib import Path
 import yaml
 import numpy as np
 from joblib import dump, load
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import GridSearchCV
 import random
 from catboost import CatBoostRegressor
@@ -53,53 +53,19 @@ if __name__ == '__main__':
 
     cat = CATBOOST_MODELS_MAPPER.get(args.model_name)()
     cat = GridSearchCV(estimator=cat, param_grid=parameters[args.model_name])
-    '''
-    params = {"iterations": 100,
-              "depth": 2,
-              "loss_function": "RMSE",
-              "verbose": False}
-    cv_dataset = Pool(data=X_train,
-                      label=y_train)
-    scores = cv(cv_dataset,
-                params,
-                fold_count=2,
-                plot="True")
-
-    grid = {'learning_rate': [0.03, 0.1],
-            'depth': [4, 6, 10],
-            'l2_leaf_reg': [1, 3, 5, 7, 9]}
-    '''
-
-    '''
-    parameters = {'depth': [6, 8, 10],
-                  'learning_rate': [0.01, 0.05, 0.1],
-                  'iterations': [30, 50, 100]
-                  }
-    cat = GridSearchCV(estimator=cat, param_grid=parameters, cv=2, n_jobs=-1)
-    '''
-    #decision_tree_model = CATBOOST_MODELS_MAPPER.get(args.model_name)()
-    #decision_tree_regressor = GridSearchCV(decision_tree_model, params[args.model_name])
     cat.fit(X_train, y_train, verbose=False)
-    #cat.fit(X_train, y_train, verbose=False, plot=True)
-    #cat1 = CATBOOST_MODELS_MAPPER.get(args.model_name)()
-    #cat = cat1.grid_search(grid, X=X_train, y=y_train)
-    #cat.fit(X_train, y_train, verbose=False, plot=True)
-    #cat.plot_tree(tree_idx=0)
 
     baseline_model = load(baseline_model_path)
     y_pred_baseline = np.squeeze(baseline_model.predict(X_test))
 
     predicted_values = np.squeeze(cat.predict(X_test))
 
-    print(cat.score(X_test, y_test))
-    #print(cat.get_params)
-    print(cat.best_params_)
-
+    print("Model R2: ", cat.score(X_test, y_test))
     print("Baseline MAE: ", mean_absolute_error(y_test, y_pred_baseline))
     print("Model MAE: ", mean_absolute_error(y_test, predicted_values))
+    print("Baseline MSE: ", mean_squared_error(y_test, y_pred_baseline))
+    print("Model MSE: ", mean_squared_error(y_test, predicted_values))
 
-    #model.fit(X, y, cat_features=[2, 3])
-
-
+    print(cat.best_params_)
 
     dump(cat, output_model_joblib_path)

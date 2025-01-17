@@ -49,11 +49,6 @@ if __name__ == '__main__':
 
     predicted_values = np.squeeze(reg.predict(X_train))
 
-    print(reg.score(X_train, y_train))
-    print(reg.get_params)
-
-    print("Model MAE: ", mean_absolute_error(y_train, predicted_values))
-
     feature_importance = reg.get_feature_importance()
     feature_names = X_train.columns
 
@@ -61,7 +56,6 @@ if __name__ == '__main__':
     for name, importance in zip(feature_names, feature_importance):
         print(f"Feature: {name}, Importance: {importance:.2f}")
 
-    '''
     import matplotlib.pyplot as plt
     import seaborn as sns
     plt.figure(figsize=(10, 6))
@@ -70,6 +64,6 @@ if __name__ == '__main__':
     plt.xlabel('Importance')
     plt.ylabel('Features')
     plt.show()
-    '''
+
     dump(reg, output_model_joblib_path)
 

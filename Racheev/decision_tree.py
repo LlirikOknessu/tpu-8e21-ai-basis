@@ -5,7 +5,7 @@ import yaml
 import numpy as np
 from sklearn import tree
 from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_absolute_error, mean_squared_error
 from joblib import dump, load
 import random
 from sklearn.model_selection import GridSearchCV
@@ -71,7 +71,11 @@ if __name__ == '__main__':
     print(decision_tree_regressor.score(X_test, y_test))
     print(decision_tree_regressor.best_params_)
 
+
+    print("Model R2: ", decision_tree_regressor.score(X_test, y_test))
     print("Baseline MAE: ", mean_absolute_error(y_test, y_pred_baseline))
     print("Model MAE: ", mean_absolute_error(y_test, predicted_values))
+    print("Baseline MSE: ", mean_squared_error(y_test, y_pred_baseline))
+    print("Model MSE: ", mean_squared_error(y_test, predicted_values))
 
     dump(decision_tree_regressor, output_model_joblib_path)

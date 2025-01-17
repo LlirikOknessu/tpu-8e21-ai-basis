@@ -5,7 +5,7 @@ import yaml
 import numpy as np
 from sklearn import tree
 from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_absolute_error, mean_squared_error
 from joblib import load
 
 TREES_MODELS_MAPPER = {'DecisionTree': tree.DecisionTreeRegressor,
@@ -39,13 +39,15 @@ if __name__ == '__main__':
     X_val = pd.read_csv(X_val_name)
     y_val = pd.read_csv(y_val_name)
 
-    reg = load(input_model)
+    decision_tree_regressor = load(input_model)
 
-    predicted_values = np.squeeze(reg.predict(X_val))
+    predicted_values = np.squeeze(decision_tree_regressor.predict(X_val))
 
     baseline_model = load(baseline_model_path)
     y_pred_baseline = np.squeeze(baseline_model.predict(X_val))
 
-    print(reg.score(X_val, y_val))
+    print("Model R2: ", decision_tree_regressor.score(X_val, y_val))
     print("Baseline MAE: ", mean_absolute_error(y_val, y_pred_baseline))
     print("Model MAE: ", mean_absolute_error(y_val, predicted_values))
+    print("Baseline MSE: ", mean_squared_error(y_val, y_pred_baseline))
+    print("Model MSE: ", mean_squared_error(y_val, predicted_values))
