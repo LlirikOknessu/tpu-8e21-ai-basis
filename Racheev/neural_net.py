@@ -22,7 +22,7 @@ class NeuralNet(Model):
     def __init__(self, neurons_cnt=128, **kwargs):
         super(NeuralNet, self).__init__(**kwargs)
         self.neurons_cnt = neurons_cnt  # Сохраняем значение параметра для конфигурации
-        self.d_in = Dense(8, activation='relu')
+        self.d_in = Dense(9, activation='relu')
         self.d1 = Dense(neurons_cnt, activation='relu')
         self.d2 = Dense(neurons_cnt, activation='relu')
         self.d_out = Dense(1, activation='sigmoid')
@@ -157,6 +157,7 @@ if __name__ == '__main__':
     tf.summary.trace_on(graph=True, profiler=True, profiler_outdir=str(logdir))
 
     # Процесс обучения
+    ep_buff = -1
     for epoch in range(parameters[args.model_name]['EPOCHS']):
         # Reset the metrics at the start of the next epoch
         for (x_train, y_train) in train_ds:
@@ -183,14 +184,16 @@ if __name__ == '__main__':
                               test_loss.result(),
                               test_mae.result()))
         '''
-        template = 'Epoch {}, Loss: {}, MAE: {}, Accuracy: {}, Test Loss: {}, Test MAE: {}, Accuracy: {}'
-        print(template.format(epoch + 1,
-                              train_loss.result(),
-                              train_mae.result(),
-                              train_accuracy.result(),
-                              test_loss.result(),
-                              test_mae.result(),
-                              test_accuracy.result()))
+        if (epoch//100  != ep_buff):
+            ep_buff = (epoch)//100
+            template = 'Epoch {}, Loss: {}, MAE: {}, Accuracy: {}, Test Loss: {}, Test MAE: {}, Accuracy: {}'
+            print(template.format(epoch + 1,
+                                  train_loss.result(),
+                                  train_mae.result(),
+                                  train_accuracy.result(),
+                                  test_loss.result(),
+                                  test_mae.result(),
+                                  test_accuracy.result()))
 
 
         # Reset metrics every epoch

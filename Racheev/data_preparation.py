@@ -166,10 +166,17 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
     del car_table['index']
     #Марка автомобилей обработка
     car_table = set_brand(car_table)
-    # Преобразование года автомобиля
-    car_table[(car_table['year'] <= 2000) & (car_table['selling_price'] > 300000)]
     # Удаление строк с электромобилем
     car_table = car_table.drop(car_table[car_table['fuel'] == 'Electric'].index)
+
+    # Преобразование года автомобиля
+    car_table['year'] = car_table['year'].where(car_table['year'] >= 2000, 2000)
+
+    #Добавление признака средней стоимости по бренду и году
+    #car_table['mean_brand_pr'] = car_table.groupby('brandn')["selling_price"].transform('mean')
+    #car_table['mean_year_pr'] = car_table.groupby('year')["selling_price"].transform('mean')
+    car_table['mean_brand_year_pr'] = car_table.groupby(['year', 'brand'])["selling_price"].transform('mean')
+
     # Объёдинения газового топлива в одно
     car_table['fuel'] = car_table['fuel'].replace(['CNG', 'LPG'], 'Gaz')
 
@@ -229,6 +236,7 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
     #нормализация
     car_table['selling_price'] = car_table['selling_price'] / car_table['selling_price'].max()
     car_table['selling_price'] = car_table['selling_price'].astype(np.float64)
+
 
 
     return car_table

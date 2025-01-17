@@ -55,7 +55,7 @@ if __name__ == '__main__':
     # Display feature importance
     for name, importance in zip(feature_names, feature_importance):
         print(f"Feature: {name}, Importance: {importance:.2f}")
-
+    '''
     import matplotlib.pyplot as plt
     import seaborn as sns
     plt.figure(figsize=(10, 6))
@@ -64,6 +64,6 @@ if __name__ == '__main__':
     plt.xlabel('Importance')
     plt.ylabel('Features')
     plt.show()
-
+    '''
     dump(reg, output_model_joblib_path)
 

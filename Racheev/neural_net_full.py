@@ -22,7 +22,7 @@ class NeuralNet(Model):
     def __init__(self, neurons_cnt=128, **kwargs):
         super(NeuralNet, self).__init__(**kwargs)
         self.neurons_cnt = neurons_cnt  # Сохраняем значение параметра для конфигурации
-        self.d_in = Dense(8, activation='relu')
+        self.d_in = Dense(9, activation='relu')
         self.d1 = Dense(neurons_cnt, activation='relu')
         self.d2 = Dense(neurons_cnt, activation='relu')
         self.d_out = Dense(1, activation='sigmoid')
@@ -159,15 +159,15 @@ if __name__ == '__main__':
                               test_mae.result()))
         '''
 
-        template = 'Epoch {}, Loss: {}, MAE: {}, Accuracy: {}'
-        print(template.format(epoch + 1,
-                              train_loss.result(),
-                              train_mae.result(),
-                              train_accuracy.result()))
+    template = 'Epoch {}, Loss: {}, MAE: {}, Accuracy: {}'
+    print(template.format(best_params['EPOCHS']+1,
+                          train_loss.result(),
+                          train_mae.result(),
+                          train_accuracy.result()))
 
-        # Reset metrics every epoch
-        train_loss.reset_state()
-        train_accuracy.reset_state()
+    # Reset metrics every epoch
+    train_loss.reset_state()
+    train_accuracy.reset_state()
 
     with fit_summary_writer.as_default():
         tf.summary.trace_export(

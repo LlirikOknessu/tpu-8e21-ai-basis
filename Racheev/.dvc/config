@@ -1,6 +1,7 @@
 [core]
     no_scm = false
     remote = remote_data
+    autostage = true
 ['remote "remote_data"']
     url = ../arch
 ['remote "local_storage"']

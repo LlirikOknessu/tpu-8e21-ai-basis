@@ -22,7 +22,7 @@ class NeuralNet(Model):
     def __init__(self, neurons_cnt=128, **kwargs):
         super(NeuralNet, self).__init__(**kwargs)
         self.neurons_cnt = neurons_cnt  # Сохраняем значение параметра для конфигурации
-        self.d_in = Dense(8, activation='relu')
+        self.d_in = Dense(9, activation='relu')
         self.d1 = Dense(neurons_cnt, activation='relu')
         self.d2 = Dense(neurons_cnt, activation='relu')
         self.d_out = Dense(1, activation='sigmoid')
