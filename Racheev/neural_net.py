@@ -194,7 +194,7 @@ if __name__ == '__main__':
             tf.summary.scalar('loss', test_loss.result(), step=epoch)
             tf.summary.scalar('mae', test_mae.result(), step=epoch)
             tf.summary.scalar('accuracy', test_accuracy.result(), step=epoch)
-            tf.summary.histogram("weights", NN_model.get_weights())
+            #tf.summary.histogram("weights", NN_model.get_weights())
 
 
         '''

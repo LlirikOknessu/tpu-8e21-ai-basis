@@ -29,10 +29,10 @@ cat_boost:
 neural_net:
   model_name: 'NeuralNet'
   NeuralNet:
-    'INPUT_DENSE' : 8
-    'DENSE_NUMBER' : 2 #не больше 2
-    'NEURONS_CNT_D1' : 8
-    'NEURONS_CNT_D2' : 8
+    'INPUT_DENSE' : 12
+    'DENSE_NUMBER' : 1 #не больше 2
+    'NEURONS_CNT_D1' : 12
+    'NEURONS_CNT_D2' : 12
     'BATCH_SIZE' : 64 #64
     'BUFFER_SIZE' : 256 #256
     'LEARNING_RATE' : 0.002
