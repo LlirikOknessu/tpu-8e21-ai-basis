@@ -40,7 +40,7 @@ if __name__ == '__main__':
     y_train = pd.read_csv(y_train_name)
 
     reg = LINEAR_MODELS_MAPPER.get(args.model_name)().fit(X_train, y_train)
-
+    print("R2:", reg.score(X_train, y_train))
     intercept = reg.intercept_.astype(float)
     coefficients = reg.coef_.astype(float)
     intercept = pd.Series(intercept, name='intercept')

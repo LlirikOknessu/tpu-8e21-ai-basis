@@ -55,6 +55,15 @@ def words(line, word_numb = 1, start_position = 0):
     words = line.split()
     return ' '.join(words[start_position : (start_position + word_numb)])
 
+def words_mlg(line, word_numb = 1, start_position = 0):
+    if (line == 'missing'):
+        words = []
+        for i in range(word_numb + start_position):
+            words.append('missing')
+    else:
+        words = line.split()
+    return ' '.join(words[start_position : (start_position + word_numb)])
+
 def set_brand(car_table: pd.DataFrame) -> pd.DataFrame:
     # Создаёт столбец brand - марка автомобиля
     car_table['brand'] = car_table['name'].apply(words, word_numb=1)
@@ -162,6 +171,9 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
     #Удаление выбросов цены
     car_table.drop(car_table[car_table['selling_price'] > 2000000 ].index, inplace=True)   #2000000  1200000
     car_table.drop(car_table[car_table['selling_price'] < 40000].index, inplace=True)    #40000  85000
+    # нормализация
+    car_table['selling_price'] = car_table['selling_price'] / car_table['selling_price'].max()
+    car_table['selling_price'] = car_table['selling_price'].astype(np.float64)
     car_table = car_table.reset_index()
     del car_table['index']
     #Марка автомобилей обработка
@@ -176,7 +188,7 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
     car_table['year'] = car_table['year'].where(car_table['year'] >= 2000, 2000)
 
     #Добавление признака средней стоимости по бренду и году
-    #car_table['mean_brand_pr'] = car_table.groupby('brandn')["selling_price"].transform('mean')
+    #car_table['mean_brand_pr'] = car_table.groupby('brand')["selling_price"].transform('mean')
     #car_table['mean_year_pr'] = car_table.groupby('year')["selling_price"].transform('mean')
     car_table['mean_brand_year_pr'] = car_table.groupby(['year', 'brand'])["selling_price"].transform('mean')
 
@@ -185,14 +197,14 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
 
     #Редактирование столбца пройденного расстояния
     #
-    #car_table['km_dr_gr'] = np.where(car_table['km_driven'] > 0, np.log(car_table['km_driven'])/np.log(10), 0)
     car_table['km_dr_gr'] = car_table['km_dr_gr'] = np.log(car_table['km_driven']+2)/np.log(10)
 
     #Признак пробега к году
     car_table['year_feat'] = 2021 - car_table['yearold']
     car_table['year_feat'] = car_table['year_feat'] / car_table['year_feat'].max()
 
-    #car_table['yeardkm'] = (car_table['year_feat']) / (car_table['km_dr_gr'])
+    car_table['yeardkm'] = (car_table['year_feat']) / (car_table['km_dr_gr'])
+    car_table['yeardkm'] = car_table['yeardkm']/car_table['yeardkm'].max()
 
     car_table.drop(columns='year_feat', inplace=True)
     car_table.drop(columns='yearold', inplace=True)
@@ -228,12 +240,34 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
     car_table['mpow_val'] = car_table['mpow_val'].astype(float)
 
     car_table['engine'] = car_table['engine'].fillna("-1")
-    car_table['eng_val'] = car_table['engine'].apply(words, word_numb=1)
-    car_table['eng_val'] = car_table['eng_val'].astype(np.int32)
+    car_table['eng_val'] = car_table['engine'].apply(words_mlg, word_numb=1)
+    car_table['eng_val'] = car_table['eng_val'].astype(np.float64)
+    car_table['eng_val'] = car_table['eng_val'] / car_table['eng_val'].max()
     #step = 2.5 * math.pow(10, 1)
     #car_table['mpow_val_d'] = (((car_table['mpow_val']) + step / 2) // step) * step
     #car_table.drop(columns=['mpow_val'], inplace=True)
 
+    car_table['mileage'] = car_table['mileage'].fillna("missing")
+    car_table['mlg_val'] = car_table['mileage'].apply(words, word_numb=1)
+    car_table['mlg_val'] = car_table.mlg_val.str.replace("missing", "-1")
+    car_table['mlg_val'] = car_table['mlg_val'].astype(float)
+
+    def set_fuel_cost_d(df, val: str, dim: str) -> float:  # 'Petrol', 'Diesel', 'Gaz'
+        if (df[val] > 0):
+            if (df[dim] == 'Diesel'):
+                return df[val] * 49.0
+            elif (df[dim] == 'Gaz'):
+                return df[val] * 47.0
+            elif (df[dim] == 'Petrol'):
+                return df[val] * 24.0
+            else:
+                return -1.0
+        else:
+            return -1.0
+
+    car_table['mlg_cost'] = car_table.apply(set_fuel_cost_d, val='mlg_val', dim='fuel', axis=1)
+    car_table['mlg_cost'] = car_table['mlg_cost']/car_table['mlg_cost'].max()
+    del car_table['mlg_val']
     # Удаление неиспользуемых столбцов
 
     car_table.drop(columns=['km_driven', 'seats'], inplace=True)
@@ -243,16 +277,16 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
 
     if (short == True):
         # Удаление строк без мощности
+        #car_table = car_table[car_table['mpow_val'] > 0]
         car_table = car_table[(car_table['mpow_val'] > 0) & (car_table['eng_val'] > 0)]
+        car_table = car_table[(car_table['mpow_val'] > 0) & (car_table['mlg_cost'] > 0)]
         car_table['mpow_val'] = car_table[car_table['mpow_val'] > 0]['mpow_val'].apply(np.round).astype(int)
         #
     #else:
         #car_table['mpow_val'] = car_table['mpow_val'].apply(np.round).astype(int)
 
     car_table = to_categorical(car_table)
-    #нормализация
-    car_table['selling_price'] = car_table['selling_price'] / car_table['selling_price'].max()
-    car_table['selling_price'] = car_table['selling_price'].astype(np.float64)
+
 
 
 

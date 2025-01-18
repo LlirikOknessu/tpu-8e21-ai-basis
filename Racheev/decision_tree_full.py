@@ -54,6 +54,8 @@ if __name__ == '__main__':
             y_train = np.ravel(y_train.values)
     reg = reg.fit(X_train, y_train)
 
+    print("R2:", reg.score(X_train, y_train))
+
     if isinstance(reg, tree.DecisionTreeRegressor):
         fig = plt.figure(figsize=(60,25))
         _ = tree.plot_tree(reg,

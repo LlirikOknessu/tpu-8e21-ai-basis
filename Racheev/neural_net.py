@@ -1,4 +1,5 @@
 import tensorflow as tf
+from keras.src.initializers import initializer
 
 from tensorflow import keras
 from tensorflow.keras import Model
@@ -193,6 +194,39 @@ if __name__ == '__main__':
             tf.summary.scalar('loss', test_loss.result(), step=epoch)
             tf.summary.scalar('mae', test_mae.result(), step=epoch)
             tf.summary.scalar('accuracy', test_accuracy.result(), step=epoch)
+            tf.summary.histogram("weights", NN_model.get_weights())
+
+
+        '''
+        first_layer_weights = model.layers[0].get_weights()[0]
+        first_layer_biases  = model.layers[0].get_weights()[1]
+        second_layer_weights = model.layers[1].get_weights()[0]
+        second_layer_biases  = model.layers[1].get_weights()[1]
+        '''
+        '''
+        with test_summary_writer.as_default():
+            W1 = NN_model.layers[0].get_weights()[0]
+            b1 = NN_model.layers[0].get_weights()[1]
+            tf.summary.histogram("weights_l1", W1)
+            tf.summary.histogram("bias_l1", b1)
+        '''
+        '''
+        if (parameters[args.model_name]['DENSE_NUMBER'] == 2):
+            with tf.name_scope("layer2"):
+                W2 = NN_model.get_variable("W2", shape=[parameters[args.model_name]['NEURONS_CNT_D1'],
+                                                  parameters[args.model_name]['NEURONS_CNT_D2']],
+                                     initializer=tf.contrib.layers.xavier_initializer())
+                tf.summary.histogram("weights", W2)
+            with tf.name_scope("layer3"):
+                W3 = NN_model.get_variable("W3", shape=[parameters[args.model_name]['NEURONS_CNT_D2'], 1],
+                                     initializer=tf.contrib.layers.xavier_initializer())
+                tf.summary.histogram("weights", W3)
+        else:
+            with tf.name_scope("layer2"):
+                W2 = NN_model.get_variable("W3", shape=[parameters[args.model_name]['NEURONS_CNT_D1'], 1],
+                                     initializer=tf.contrib.layers.xavier_initializer())
+                tf.summary.histogram("weights", W2)
+        '''
 
 
 
@@ -229,6 +263,12 @@ if __name__ == '__main__':
             profiler_outdir=str(logdir) ###################
         )
 
+    #X = tf.placeholder(tf.float32, [None, input_size], name="input_x")
+    #x_image = tf.reshape(X, [-1, 6, 10, 1])
+    #tf.summary.image('input', x_image, 4)
+
+
+
     print(NN_model.get_config())
     print(NN_model.get_weights())
 
@@ -237,5 +277,6 @@ if __name__ == '__main__':
     #Проверка загрузки
     loaded_model = keras.models.load_model(output_model_keras_path)
     print(np.testing.assert_allclose(NN_model.predict(X_test),loaded_model.predict(X_test)))
+
 
 

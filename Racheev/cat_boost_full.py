@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
     feature_importance = reg.get_feature_importance()
     feature_names = X_train.columns
-
+    print("R2:", reg.score(X_train, y_train))
     # Display feature importance
     for name, importance in zip(feature_names, feature_importance):
         print(f"Feature: {name}, Importance: {importance:.2f}")
@@ -65,5 +65,6 @@ if __name__ == '__main__':
     plt.ylabel('Features')
     plt.show()
     '''
+
     dump(reg, output_model_joblib_path)
 
