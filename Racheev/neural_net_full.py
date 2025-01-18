@@ -137,7 +137,7 @@ if __name__ == '__main__':
 
     #################################################################################
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    train_log_dir = logs_path / 'gradient_tape' / current_time / 'train'
+    train_log_dir = logs_path / 'gradient_tape' / current_time / 'full'
     train_log_dir.mkdir(exist_ok=True, parents=True)
     train_summary_writer = tf.summary.create_file_writer(str(train_log_dir))
 

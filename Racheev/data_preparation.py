@@ -270,16 +270,18 @@ def clean_data(car_table_1: pd.DataFrame, car_table_2: pd.DataFrame, car_table_3
     del car_table['mlg_val']
     # Удаление неиспользуемых столбцов
 
-    car_table.drop(columns=['km_driven', 'seats'], inplace=True)
-    car_table.drop(columns=['mileage', 'engine', 'max_power', 'torque'], inplace=True)
+    car_table.drop(columns=['km_driven'], inplace=True)
+    #car_table.drop(columns=['seats'], inplace=True)
+    car_table.drop(columns=['mileage', 'engine', 'max_power', 'torque', 'seats'], inplace=True)
 
     #car_table['mpow_val'] = car_table['mpow_val'].fillna(-1)
 
     if (short == True):
         # Удаление строк без мощности
         #car_table = car_table[car_table['mpow_val'] > 0]
-        car_table = car_table[(car_table['mpow_val'] > 0) & (car_table['eng_val'] > 0)]
-        car_table = car_table[(car_table['mpow_val'] > 0) & (car_table['mlg_cost'] > 0)]
+        #car_table = car_table[(car_table['mpow_val'] > 0) & (car_table['eng_val'] > 0)]
+        #car_table = car_table[(car_table['mpow_val'] > 0) & (car_table['mlg_cost'] > 0)]
+        car_table = car_table[((car_table['mpow_val'] > 0) & (car_table['mlg_cost'] > 0)) & ((car_table['eng_val'] > 0))]
         car_table['mpow_val'] = car_table[car_table['mpow_val'] > 0]['mpow_val'].apply(np.round).astype(int)
         #
     #else:
