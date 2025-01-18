@@ -6,8 +6,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 
 def prepare_regression_data(df):
-    df_temp = pd.get_dummies(df.copy(), columns=['sex', 'smoker', 'region'], drop_first=True)
-    X = df_temp.drop('charges', axis=1)
+    # Учитываем новые признаки, созданные ранее
+    df_temp = pd.get_dummies(df.copy(), columns=['sex', 'smoker', 'region', 'age_category'], drop_first=True)
+    X = df_temp[[col for col in df_temp.columns if col not in ['charges']]]
     y = df_temp['charges']
     return X, y
 

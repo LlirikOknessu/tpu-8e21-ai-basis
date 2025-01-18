@@ -9,10 +9,11 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 import matplotlib.pyplot as plt
+import numpy as np
 
 def prepare_regression_data(df):
-    df_temp = pd.get_dummies(df.copy(), columns=['sex', 'smoker', 'region'], drop_first=True)
-    X = df_temp.drop('charges', axis=1)
+    df_temp = pd.get_dummies(df.copy(), columns=['sex', 'smoker', 'region', 'age_category'], drop_first=True)
+    X = df_temp[[col for col in df_temp.columns if col not in ['charges']]]
     y = df_temp['charges']
     return X, y
 
@@ -61,7 +62,6 @@ def plot_training_curves(history, output_dir):
     plt.close()
 
 def plot_weight_histograms(model, output_dir):
-    """Save histograms of model weights."""
     os.makedirs(output_dir, exist_ok=True)
     for i, weights in enumerate(model.coefs_):
         plt.figure(figsize=(8, 6))
@@ -95,7 +95,7 @@ def main():
     X_test_scaled = scaler.transform(X_test)
 
     # TensorBoard logger
-    log_dir = args.logdir
+    log_dir = os.path.join(args.logdir, f"run_{pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')}")
     os.makedirs(log_dir, exist_ok=True)
     writer = tf.summary.create_file_writer(log_dir)
 
@@ -129,6 +129,7 @@ def main():
             tf.summary.scalar("R2/Validation", val_r2, step=epoch)
             tf.summary.scalar("MAE/Train", train_mae, step=epoch)
             tf.summary.scalar("MAE/Validation", val_mae, step=epoch)
+            writer.flush()
 
     y_pred = model.predict(X_test_scaled)
 

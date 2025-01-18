@@ -9,9 +9,10 @@ from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 import matplotlib.pyplot as plt
 
 def prepare_regression_data(df):
-    df_temp = pd.get_dummies(df.copy(), columns=['sex', 'smoker'], drop_first=True)
-    # 'age' is explicitly included as a feature, and 'region' is removed
-    X = df_temp[['age'] + [col for col in df_temp.columns if col not in ['age', 'charges', 'region']]]
+    # Учитываем новые признаки, созданные ранее
+    df_temp = pd.get_dummies(df.copy(), columns=['sex', 'smoker', 'age_category'], drop_first=True)
+    # Добавляем все новые и оригинальные признаки, исключая 'region'
+    X = df_temp[[col for col in df_temp.columns if col not in ['charges', 'region']]]
     y = df_temp['charges']
     return X, y
 

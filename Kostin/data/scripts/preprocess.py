@@ -1,7 +1,9 @@
-import argparse
-import os
 import pandas as pd
 import numpy as np
+import argparse
+import os
+
+# Ваш исходный код здесь
 
 def filter_iqr(data, column, multiplier=1.5):
     Q1 = data[column].quantile(0.25)
@@ -29,6 +31,16 @@ def remove_invalid_columns(data, invalid_keywords):
     """Remove columns that contain invalid keywords in their names."""
     columns_to_remove = [col for col in data.columns if any(keyword in col for keyword in invalid_keywords)]
     return data.drop(columns=columns_to_remove), columns_to_remove
+
+def age_category(age):
+    if age < 18:
+        return 'child'
+    elif 18 <= age < 35:
+        return 'young_adult'
+    elif 35 <= age < 60:
+        return 'middle_aged'
+    else:
+        return 'senior'
 
 def main():
     parser = argparse.ArgumentParser(description="Preprocess insurance dataset.")
@@ -58,6 +70,12 @@ def main():
     # Фильтрация на основе расстояния до линии Actual = Predicted
     if args.predicted and args.predicted in df.columns:
         df = filter_distance_to_line(df, 'charges', args.predicted, args.max_distance)
+
+    # Генерация новых признаков
+    df['age_category'] = df['age'].apply(age_category)
+    df['health_index'] = (df['bmi'] / 30) + (df['children'] * 0.1) - (df['smoker'] == 'yes') * 1.5
+    df['premium_ratio'] = df['charges'] / df['age']
+    df['premium_ratio'] = df['premium_ratio'].replace([np.inf, -np.inf], np.nan).fillna(0)
 
     os.makedirs(os.path.dirname(args.output), exist_ok=True)
     df.to_csv(args.output, index=False)
