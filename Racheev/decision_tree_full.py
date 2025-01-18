@@ -15,8 +15,8 @@ TREES_MODELS_MAPPER = {'DecisionTree': tree.DecisionTreeRegressor,
 
 # Set the best parameters that you get on training stage for all used models
 TREES_MODELS_BEST_PARAMETERS = {
-    'DecisionTree': {'max_depth': 7, 'min_samples_leaf': 1, 'min_samples_split': 4, 'splitter': 'best'},
-    'RandomForest': {'max_depth': 7, 'min_samples_leaf': 1, 'min_samples_split': 3, 'n_estimators': 15},
+    'DecisionTree': {'max_depth': 7, 'min_samples_leaf': 2, 'min_samples_split': 2, 'splitter': 'best'},
+    'RandomForest': {'max_depth': 7, 'min_samples_leaf': 4, 'min_samples_split': 7, 'n_estimators': 15},
     'ExtraTree': {'max_depth': 7, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 15}}
 
 
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     print("R2:", reg.score(X_train, y_train))
 
     if isinstance(reg, tree.DecisionTreeRegressor):
-        fig = plt.figure(figsize=(60,25))
+        fig = plt.figure(figsize=(60,25), dpi = 300)
         _ = tree.plot_tree(reg,
                            feature_names=X_train.columns,
                            class_names=y_train_cols,
