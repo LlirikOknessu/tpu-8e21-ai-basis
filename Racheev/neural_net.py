@@ -20,10 +20,9 @@ import random
 
 @tf.keras.utils.register_keras_serializable()
 class NeuralNet(Model):
-    def __init__(self, neurons_cnt_input = 8, dense_number = 2, neurons_cnt_d1 = 128, neurons_cnt_d2 = 128, **kwargs):
+    def __init__(self, neurons_cnt_input = 8, neurons_cnt_d1 = 128, neurons_cnt_d2 = 128, **kwargs):
         super(NeuralNet, self).__init__(**kwargs)
         self.neurons_cnt_input = neurons_cnt_input  # Сохраняем значение параметра для конфигурации
-        self.dense_number = dense_number
         self.neurons_cnt_d1 = neurons_cnt_d1
         self.neurons_cnt_d2 = neurons_cnt_d2
         self.d_in = Dense(neurons_cnt_input, activation='relu')
@@ -34,33 +33,24 @@ class NeuralNet(Model):
     def call(self, x):
         x = self.d_in(x)
         x = self.d1(x)
-        if (self.dense_number == 2):
-            x = self.d2(x)
+        x = self.d2(x)
         return self.d_out(x)
 
     def get_config(self):
         # Возвращаем параметры модели, включая кастомные
         config = super(NeuralNet, self).get_config()
-        if (self.dense_number == 2):
-            config.update({
-                "neurons_cnt_input": self.neurons_cnt_input,  #  Добавляем кастомный параметр в конфигурацию
-                "dense_number": self.dense_number,
-                "neurons_cnt_d1": self.neurons_cnt_d1,
-                "neurons_cnt_d2": self.neurons_cnt_d2
-            })
-        else:
-            config.update({
-                "neurons_cnt_input": self.neurons_cnt_input,  # Добавляем кастомный параметр в конфигурацию
-                "dense_number": self.dense_number,
-                "neurons_cnt_d1": self.neurons_cnt_d1
-            })
+        config.update({
+            "neurons_cnt_input": self.neurons_cnt_input,  #  Добавляем кастомный параметр в конфигурацию
+            "neurons_cnt_d1": self.neurons_cnt_d1,
+            "neurons_cnt_d2": self.neurons_cnt_d2
+        })
+
         return config
 
     @classmethod
     def from_config(cls, config):
         # Создаём экземпляр класса из конфигурации
         return cls(**config)
-
 
 NeuralNet_MODELS_MAPPER = {'NeuralNet': NeuralNet}
 
@@ -84,10 +74,11 @@ def parser_args_for_sac():
 if __name__ == '__main__':
     args = parser_args_for_sac()
 
+    random.seed(67)
+
     with open(args.params, 'r') as f:
         params_all = yaml.safe_load(f)
     parameters = params_all['neural_net']
-
     input_dir = Path(args.input_dir)
     output_dir = Path(args.output_dir)
     baseline_model_path = Path(args.baseline_model)
@@ -115,7 +106,6 @@ if __name__ == '__main__':
 
     # Create an instance of the model
     NN_model = NeuralNet_MODELS_MAPPER.get(args.model_name)(parameters[args.model_name]['INPUT_DENSE'],
-                                                            parameters[args.model_name]['DENSE_NUMBER'],
                                                             parameters[args.model_name]['NEURONS_CNT_D1'],
                                                             parameters[args.model_name]['NEURONS_CNT_D2'])
     NN_model.build(input_shape=(None, parameters[args.model_name]['INPUT_DENSE']))
@@ -159,7 +149,6 @@ if __name__ == '__main__':
         test_accuracy(labels, predictions)
 
 
-    #################################################################################
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     train_log_dir = logs_path / 'gradient_tape' / current_time / 'train'
     train_log_dir.mkdir(exist_ok=True, parents=True)
@@ -174,6 +163,13 @@ if __name__ == '__main__':
 
     tf.summary.trace_on(graph=True, profiler=True, profiler_outdir=str(logdir))
 
+
+    def log_weights(epoch):
+        for layer in NN_model.layers:
+            weights, biases = layer.get_weights()  # Получаем веса и смещения слоя
+            tf.summary.histogram(f'weights/{layer.name}', weights, step=epoch)  # Логируем веса
+            tf.summary.histogram(f'biases/{layer.name}', biases, step=epoch)  # Логируем смещения
+
     # Процесс обучения
     ep_buff = -1
     for epoch in range(parameters[args.model_name]['EPOCHS']):
@@ -186,6 +182,7 @@ if __name__ == '__main__':
             tf.summary.scalar('loss', train_loss.result(), step=epoch)
             tf.summary.scalar('mae', train_mae.result(), step=epoch)
             tf.summary.scalar('accuracy', train_accuracy.result(), step=epoch)
+            log_weights(epoch)
 
         for (x_test, y_test) in test_ds:
             test_step(x_test, y_test)
@@ -194,8 +191,6 @@ if __name__ == '__main__':
             tf.summary.scalar('loss', test_loss.result(), step=epoch)
             tf.summary.scalar('mae', test_mae.result(), step=epoch)
             tf.summary.scalar('accuracy', test_accuracy.result(), step=epoch)
-            #tf.summary.histogram("weights", NN_model.get_weights())
-
 
         '''
         first_layer_weights = model.layers[0].get_weights()[0]

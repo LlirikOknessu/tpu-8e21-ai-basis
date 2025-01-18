@@ -19,10 +19,9 @@ import random
 
 @tf.keras.utils.register_keras_serializable()
 class NeuralNet(Model):
-    def __init__(self, neurons_cnt_input = 8, dense_number = 2, neurons_cnt_d1 = 128, neurons_cnt_d2 = 128, **kwargs):
+    def __init__(self, neurons_cnt_input = 8, neurons_cnt_d1 = 128, neurons_cnt_d2 = 128, **kwargs):
         super(NeuralNet, self).__init__(**kwargs)
         self.neurons_cnt_input = neurons_cnt_input  # Сохраняем значение параметра для конфигурации
-        self.dense_number = dense_number
         self.neurons_cnt_d1 = neurons_cnt_d1
         self.neurons_cnt_d2 = neurons_cnt_d2
         self.d_in = Dense(neurons_cnt_input, activation='relu')
@@ -33,26 +32,18 @@ class NeuralNet(Model):
     def call(self, x):
         x = self.d_in(x)
         x = self.d1(x)
-        if (self.dense_number == 2):
-            x = self.d2(x)
+        x = self.d2(x)
         return self.d_out(x)
 
     def get_config(self):
         # Возвращаем параметры модели, включая кастомные
         config = super(NeuralNet, self).get_config()
-        if (self.dense_number == 2):
-            config.update({
-                "neurons_cnt_input": self.neurons_cnt_input,  #  Добавляем кастомный параметр в конфигурацию
-                "dense_number": self.dense_number,
-                "neurons_cnt_d1": self.neurons_cnt_d1,
-                "neurons_cnt_d2": self.neurons_cnt_d2
-            })
-        else:
-            config.update({
-                "neurons_cnt_input": self.neurons_cnt_input,  # Добавляем кастомный параметр в конфигурацию
-                "dense_number": self.dense_number,
-                "neurons_cnt_d1": self.neurons_cnt_d1
-            })
+        config.update({
+            "neurons_cnt_input": self.neurons_cnt_input,  #  Добавляем кастомный параметр в конфигурацию
+            "neurons_cnt_d1": self.neurons_cnt_d1,
+            "neurons_cnt_d2": self.neurons_cnt_d2
+        })
+
         return config
 
     @classmethod
@@ -64,8 +55,8 @@ class NeuralNet(Model):
 NeuralNet_MODELS_MAPPER = {'NeuralNet': NeuralNet}
 
 NeuralNet_MODELS_BEST_PARAMETERS = {
-    'NeuralNet': {'INPUT_DENSE' : 10, 'DENSE_NUMBER' : 2,'NEURONS_CNT_D1' : 10, 'NEURONS_CNT_D2' : 10,
-        'BATCH_SIZE' : 64, 'BUFFER_SIZE' : 256, 'LEARNING_RATE' : 0.002, 'EPOCHS' : 100}}
+    'NeuralNet': {'INPUT_DENSE' : 12, 'NEURONS_CNT_D1' : 64, 'NEURONS_CNT_D2' : 64,
+        'BATCH_SIZE' : 128, 'BUFFER_SIZE' : 256, 'LEARNING_RATE' : 0.002, 'EPOCHS' : 5000}}
 
 def parser_args_for_sac():
     parser = argparse.ArgumentParser(description='Paths parser')
@@ -85,6 +76,7 @@ def parser_args_for_sac():
 
 
 if __name__ == '__main__':
+    random.seed(67)
     args = parser_args_for_sac()
 
     with open(args.params, 'r') as f:
@@ -115,7 +107,6 @@ if __name__ == '__main__':
 
     # Create an instance of the model
     NN_model = NeuralNet_MODELS_MAPPER.get(args.model_name)(parameters[args.model_name]['INPUT_DENSE'],
-                                                            parameters[args.model_name]['DENSE_NUMBER'],
                                                             parameters[args.model_name]['NEURONS_CNT_D1'],
                                                             parameters[args.model_name]['NEURONS_CNT_D2'])
     NN_model.build(input_shape=(None, parameters[args.model_name]['INPUT_DENSE']))
@@ -156,6 +147,13 @@ if __name__ == '__main__':
 
     tf.summary.trace_on(graph=True, profiler=True, profiler_outdir=str(logdir))
 
+    def log_weights(epoch):
+        for layer in NN_model.layers:
+            weights, biases = layer.get_weights()  # Получаем веса и смещения слоя
+            tf.summary.histogram(f'weights/{layer.name}', weights, step=epoch)  # Логируем веса
+            tf.summary.histogram(f'biases/{layer.name}', biases, step=epoch)  # Логируем смещения
+
+
     # Процесс обучения
     for epoch in range(best_params['EPOCHS']):
         # Reset the metrics at the start of the next epoch
@@ -167,6 +165,7 @@ if __name__ == '__main__':
             tf.summary.scalar('loss', train_loss.result(), step=epoch)
             tf.summary.scalar('mae', train_mae.result(), step=epoch)
             tf.summary.scalar('accuracy', train_accuracy.result(), step=epoch)
+            log_weights(epoch)
 
         '''
         template = 'Epoch {}, Loss: {}, MAE: {}, Test Loss: {}, Test MAE: {}'
@@ -176,6 +175,9 @@ if __name__ == '__main__':
                               test_loss.result(),
                               test_mae.result()))
         '''
+        # Reset metrics every epoch
+        train_loss.reset_state()
+        train_accuracy.reset_state()
 
     template = 'Epoch {}, Loss: {}, MAE: {}, Accuracy: {}'
     print(template.format(best_params['EPOCHS']+1,
@@ -183,9 +185,7 @@ if __name__ == '__main__':
                           train_mae.result(),
                           train_accuracy.result()))
 
-    # Reset metrics every epoch
-    train_loss.reset_state()
-    train_accuracy.reset_state()
+
 
     with fit_summary_writer.as_default():
         tf.summary.trace_export(

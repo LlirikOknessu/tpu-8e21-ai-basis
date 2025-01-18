@@ -30,10 +30,9 @@ neural_net:
   model_name: 'NeuralNet'
   NeuralNet:
     'INPUT_DENSE' : 12
-    'DENSE_NUMBER' : 1 #не больше 2
-    'NEURONS_CNT_D1' : 12
-    'NEURONS_CNT_D2' : 12
-    'BATCH_SIZE' : 64 #64
-    'BUFFER_SIZE' : 256 #256
+    'NEURONS_CNT_D1' : 64
+    'NEURONS_CNT_D2' : 64
+    'BATCH_SIZE' : 128
+    'BUFFER_SIZE' : 512
     'LEARNING_RATE' : 0.002
-    'EPOCHS' : 2000
+    'EPOCHS' : 5000
