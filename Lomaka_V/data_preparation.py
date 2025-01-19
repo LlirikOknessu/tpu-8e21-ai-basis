@@ -17,56 +17,14 @@ def parser_args_for_sac():
     return parser.parse_args()
 
 
-def to_categorical(df: pd.DataFrame):
-    df.school = pd.Categorical(df.school)
-    df = df.assign(school=df.school.cat.codes)
-    df.school_setting = pd.Categorical(df.school_setting)
-    df = df.assign(school_setting=df.school_setting.cat.codes)
-    df.school_type = pd.Categorical(df.school_type)
-    df = df.assign(school_type=df.school_type.cat.codes)
-    df.classroom = pd.Categorical(df.classroom)
-    df = df.assign(classroom=df.classroom.cat.codes)
-    df.teaching_method = pd.Categorical(df.teaching_method)
-    df = df.assign(teaching_method=df.teaching_method.cat.codes)
-    df.n_student = pd.Categorical(df.n_student)
-    df = df.assign(n_student=df.n_student.cat.codes)
-    df.pretest = pd.Categorical(df.pretest)
-    df = df.assign(pretest=df.pretest.cat.codes)
-    df.lunch = pd.Categorical(df.lunch)
-    df = df.assign(lunch=df.lunch.cat.codes)
-    return df
 
+def cleaned (df_original):
+    df_original = df_original.drop_duplicates()
+    df_original = df_original.dropna()
+    df_original = df_original.drop(columns=['student_id'])
+    df_original = df_original.drop(columns=['gender'])
+    return df_original
 
-def titles_reduction(x) -> str:
-    if x.find("Data Science") >= 0 or x.find("Data Scientist") >= 0:
-        return 'Data Scientist'
-    elif x.find("Analyst") >= 0 or x.find("Analytics") >= 0:
-        return 'Data Analyst'
-    elif x.find("ML") >= 0 or x.find("Machine Learning") >= 0:
-        return 'Machine Learning Engineer'
-    elif x.find("Data Engineer") >= 0 or x.find("Data Engineering") >= 0:
-        return 'Data Engineer'
-    else:
-        return 'AI related'
-
-
-def res(x) -> str:
-    if x == "US":
-        return "US"
-    else:
-        return "Other"
-
-
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    df['school'] = df['school'].apply(titles_reduction)
-    df['teaching_method'] = df['teaching_method'].apply(res)
-    df['n_student'] = df['n_student'].apply(res)
-    df['posttest'] = np.log(df['posttest'])
-    df.drop("student_id", axis=1, inplace=True)
-    df.drop("gender", axis=1, inplace=True)
-
-    df = to_categorical(df)
-    return df
 
 
 if __name__ == '__main__':
@@ -82,8 +40,14 @@ if __name__ == '__main__':
 
     for data_file in input_dir.glob('*.csv'):
         full_data = pd.read_csv(data_file)
-        cleaned_data = clean_data(df=full_data)
-        X, y = cleaned_data.drop("posttest", axis=1), cleaned_data['posttest']
+
+        full_data =  full_data.drop_duplicates()
+        full_data =  full_data.dropna()
+        full_data =  full_data.drop(columns=['student_id'])
+        full_data =  full_data.drop(columns=['gender'])
+        full_data = pd.get_dummies(full_data, columns=['school', 'school_setting', 'school_type', 'classroom', 'teaching_method', 'lunch'], drop_first=True)
+
+        X, y = full_data.drop("posttest", axis=1), full_data['posttest']
         X_train , X_test, y_train, y_test = train_test_split(X, y,
                                                             train_size=params.get('train_test_ratio'),
                                                             random_state=params.get('random_state'))

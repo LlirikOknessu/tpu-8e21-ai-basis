@@ -1,46 +1,48 @@
-import pandas as pd
 import argparse
-from pathlib import Path
-import yaml
-import numpy as np
-from sklearn.linear_model import LinearRegression
-from sklearn.linear_model import Ridge
-from sklearn.metrics import mean_absolute_error
-from joblib import load
+import os
+import joblib
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 
-LINEAR_MODELS_MAPPER = {'Ridge': Ridge,
-                        'LinearRegression': LinearRegression}
+def prepare_regression_data(df):
+    # Учитываем новые признаки, созданные ранее
+    df_temp = pd.get_dummies(df.copy(), columns=['school', 'school_setting', 'school_type', 'classroom', 'teaching_method', 'lunch'], drop_first=True)
+    X = df_temp[[col for col in df_temp.columns if col not in ['charges']]]
+    y = df_temp['charges']
+    return X, y
 
-def parser_args_for_sac():
-    parser = argparse.ArgumentParser(description='Paths parser')
-    parser.add_argument('--input_dir', '-id', type=str, default='data/prepared/',
-                        required=False, help='path to input data directory')
-    parser.add_argument('--input_model', '-im', type=str, default='data/models/',
-                        required=False, help='path to save prepared data')
-    parser.add_argument('--model_name', '-mn', type=str, default='LR', required=False,
-                        help='file with dvc stage params')
-    return parser.parse_args()
+def main():
+    parser = argparse.ArgumentParser(description="Validate linear regression model.")
+    parser.add_argument("--input", required=True, help="Path to input CSV file.")
+    parser.add_argument("--model", required=True, help="Path to the trained model file (pkl).")
+    parser.add_argument("--metrics_output", required=False, default="metrics", help="Path to save validation metrics.")
+    args = parser.parse_args()
 
-if __name__ == '__main__':
-    args = parser_args_for_sac()
+    df = pd.read_csv(args.input)
+    print(f"[INFO] Data loaded: {df.shape}")
 
-    input_dir = Path(args.input_dir)
-    input_model = Path(args.input_model)
+    X, y = prepare_regression_data(df)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    X_val_name = input_dir / 'X_val.csv'
-    y_val_name = input_dir / 'y_val.csv'
+    model = joblib.load(args.model)
+    print(f"[INFO] Model loaded from {args.model}")
 
-    X_val = pd.read_csv(X_val_name)
-    y_val = pd.read_csv(y_val_name)
+    y_pred = model.predict(X_test)
 
-    reg = load(input_model)
+    r2 = r2_score(y_test, y_pred)
+    rmse = mean_squared_error(y_test, y_pred, squared=False)
+    mae = mean_absolute_error(y_test, y_pred)
 
-    predicted_values = np.squeeze(reg.predict(X_val))
+    print(f"[INFO] R2: {r2:.3f}, RMSE: {rmse:.2f}, MAE: {mae:.2f}")
 
-    y_mean = y_val.mean()
-    y_pred_baseline = [y_mean] * len(y_val)
+    os.makedirs(args.metrics_output, exist_ok=True)
+    metrics_path = os.path.join(args.metrics_output, 'linear_validation_metrics.txt')
+    with open(metrics_path, 'w') as f:
+        f.write(f"R2: {r2:.3f}\n")
+        f.write(f"RMSE: {rmse:.2f}\n")
+        f.write(f"MAE: {mae:.2f}\n")
+    print(f"[INFO] Metrics saved to {metrics_path}")
 
-    print(reg.score(X_val, y_val))
-    print("Mean apt salary: ", y_mean)
-    print("Baseline MAE: ", mean_absolute_error(y_val, y_pred_baseline))
-    print("Model MAE: ", mean_absolute_error(y_val, predicted_values))
+if __name__ == "__main__":
+    main()
