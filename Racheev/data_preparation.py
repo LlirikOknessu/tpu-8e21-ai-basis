@@ -334,8 +334,8 @@ if __name__ == '__main__':
 
     columns = car_table_clear.columns.to_list()
     # Нормализация данных
-    #scaler = MinMaxScaler()
-    #car_table_clear = scaler.fit_transform(car_table_clear)
+    scaler = MinMaxScaler()
+    car_table_clear = scaler.fit_transform(car_table_clear)
 
     # Стандартизация данных
     #scaler = StandardScaler()
