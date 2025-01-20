@@ -13,7 +13,7 @@ import argparse
 import yaml
 import numpy as np
 from joblib import dump, load
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import GridSearchCV
 import random
 
@@ -116,6 +116,16 @@ if __name__ == '__main__':
     print("Baseline R2: ", baseline_model.score(X_val, y_val))
     print("Model R2: ", result)
 
+    mse = mean_squared_error(y_val, predicted_values)
+    print("Baseline MSE: ", mean_squared_error(y_val, y_pred_baseline))
+    print("Model MSE: ", mean_squared_error(y_val, predicted_values))
+
+    print(type(predicted_values))
+    print(type(y_val))
+
+    print("Предсказанное - Истинное")
+    for i in range(10):
+        print(predicted_values[i],' - ',y_val.iloc[i])
 
 
 
