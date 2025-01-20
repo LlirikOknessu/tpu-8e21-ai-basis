@@ -6,6 +6,7 @@ from pathlib import Path
 import yaml
 from sklearn.model_selection import train_test_split
 import warnings
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 warnings.filterwarnings('ignore', category=FutureWarning)
 
 def parser_args_for_sac():
@@ -330,18 +331,40 @@ if __name__ == '__main__':
     car_table_3 = pd.read_csv(src_table[2], delimiter=',')
     #print(car_table_1.info(), car_table_2.info(), car_table_3.info())
     car_table_clear = clean_data(car_table_1, car_table_2, car_table_3, True)
+
+    columns = car_table_clear.columns.to_list()
+    # Нормализация данных
+    #scaler = MinMaxScaler()
+    #car_table_clear = scaler.fit_transform(car_table_clear)
+
+    # Стандартизация данных
+    #scaler = StandardScaler()
+    #car_table_clear = scaler.fit_transform(car_table_clear)
+
+    car_table_clear = pd.DataFrame(car_table_clear, columns=columns)
+
     print('Обработанное')
     print(car_table_clear.info())
     print(car_table_clear.nunique())
-    print(car_table_clear.describe(include = 'all'))
+    print(car_table_clear.describe(include='all'))
+
+
+
+
+
+    train_test_ratio = params.get('train_test_ratio')
+    train_val_ratio = params.get('train_val_ratio')
 
     X, y = car_table_clear.drop("selling_price", axis=1), car_table_clear['selling_price']
     X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                        train_size=params.get('train_test_ratio'),
+                                                        train_size=train_test_ratio,
                                                         random_state=params.get('random_state'))
+    if (train_test_ratio != 0):
+        train_val_ratio = 1-(1-train_val_ratio)/(train_test_ratio)
+
     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
-                                                      train_size=params.get('train_val_raitio'),
-                                                      random_state=params.get('random_state'))
+                                                  train_size=train_val_ratio,
+                                                  random_state=params.get('random_state'))
     X_full_name = output_dir / 'X_full.csv'
     y_full_name = output_dir / 'y_full.csv'
     X_train_name = output_dir / 'X_train.csv'

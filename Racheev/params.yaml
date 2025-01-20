@@ -1,5 +1,5 @@
 data_preparation:
-  train_test_ratio: 0.7
+  train_test_ratio: 0.8
   train_val_ratio: 0.9
   random_state: 67
 linear_regression:

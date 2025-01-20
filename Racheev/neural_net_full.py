@@ -179,11 +179,13 @@ if __name__ == '__main__':
         train_loss.reset_state()
         train_accuracy.reset_state()
 
-    template = 'Epoch {}, Loss: {}, MAE: {}, Accuracy: {}'
-    print(template.format(best_params['EPOCHS']+1,
-                          train_loss.result(),
-                          train_mae.result(),
-                          train_accuracy.result()))
+        if (epoch % 100 == 999):
+            template = 'Epoch {}, Loss: {}, MAE: {}, Accuracy: {}'
+            print(template.format(best_params['EPOCHS'] + 1,
+                                  train_loss.result(),
+                                  train_mae.result(),
+                                  train_accuracy.result()))
+
 
 
 

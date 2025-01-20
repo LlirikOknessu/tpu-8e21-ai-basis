@@ -171,7 +171,6 @@ if __name__ == '__main__':
             tf.summary.histogram(f'biases/{layer.name}', biases, step=epoch)  # Логируем смещения
 
     # Процесс обучения
-    ep_buff = -1
     for epoch in range(parameters[args.model_name]['EPOCHS']):
         # Reset the metrics at the start of the next epoch
         for (x_train, y_train) in train_ds:
@@ -233,8 +232,7 @@ if __name__ == '__main__':
                               test_loss.result(),
                               test_mae.result()))
         '''
-        if (epoch//100  != ep_buff):
-            ep_buff = (epoch-1)//100
+        if (epoch %100 == 99):
             template = 'Epoch {}, Loss: {}, MAE: {}, Accuracy: {}, Test Loss: {}, Test MAE: {}, Accuracy: {}'
             print(template.format(epoch + 1,
                                   train_loss.result(),
