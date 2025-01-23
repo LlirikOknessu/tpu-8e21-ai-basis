@@ -5,8 +5,10 @@ import yaml
 import numpy as np
 from joblib import dump, load
 from sklearn.metrics import mean_absolute_error
+from sklearn.model_selection import GridSearchCV
+import random
 from catboost import CatBoostRegressor
-
+from catboost import Pool, cv
 
 CATBOOST_MODELS_MAPPER = {'CatBoostRegressor': CatBoostRegressor}
 
@@ -47,18 +49,12 @@ if __name__ == '__main__':
 
     predicted_values = np.squeeze(reg.predict(X_train))
 
-    print(reg.score(X_train, y_train))
-    print(reg.get_params)
-
-    print("Model MAE: ", mean_absolute_error(y_train, predicted_values))
-
     feature_importance = reg.get_feature_importance()
     feature_names = X_train.columns
-
+    print("R2:", reg.score(X_train, y_train))
     # Display feature importance
     for name, importance in zip(feature_names, feature_importance):
         print(f"Feature: {name}, Importance: {importance:.2f}")
-
     '''
     import matplotlib.pyplot as plt
     import seaborn as sns
@@ -69,4 +65,5 @@ if __name__ == '__main__':
     plt.ylabel('Features')
     plt.show()
     '''
+
     dump(reg, output_model_joblib_path)

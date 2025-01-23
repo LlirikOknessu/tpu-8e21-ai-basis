@@ -1,20 +1,33 @@
+import pandas as pd
 import argparse
+from pathlib import Path
+import yaml
 import os
 import joblib
-import pandas as pd
+from math import sqrt
 import numpy as np
-
-from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import Ridge
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+from joblib import dump
 import matplotlib.pyplot as plt
 
-def prepare_regression_data(df):
-    # Учитываем новые признаки, созданные ранее
-    df_temp = pd.get_dummies(df.copy(), columns=['sex', 'smoker', 'region', 'age_category'], drop_first=True)
-    X = df_temp[[col for col in df_temp.columns if col not in ['charges']]]
-    y = df_temp['charges']
-    return X, y
+from sklearn.model_selection import train_test_split
+
+LINEAR_MODELS_MAPPER = {'Ridge': Ridge,
+                        'LinearRegression': LinearRegression}
+
+
+def parser_args_for_sac():
+    parser = argparse.ArgumentParser(description='Paths parser')
+    parser.add_argument('--input_dir', '-id', type=str, default='data/prepared/',
+                        required=False, help='path to input data directory')
+    parser.add_argument('--output_dir', '-od', type=str, default='data/models/',
+                        required=False, help='path to save prepared data')
+    parser.add_argument('--model_name', '-mn', type=str, default='LR', required=False,
+                        help='file with dvc stage params')
+    parser.add_argument("--metrics_output", required=False, default="metrics", help="Path to save metrics and plots.")
+    return parser.parse_args()
 
 def plot_metrics(y_test, y_pred, output_dir):
     """Save scatter plot of actual vs predicted values."""
@@ -41,9 +54,9 @@ def plot_weight_distribution(model, feature_names, output_dir):
     plt.savefig(os.path.join(output_dir, 'linear_regression_weights.png'), dpi=300)
     plt.close()
 
-def calculate_loss_curve(y_test, y_pred, output_dir):
+def calculate_loss_curve(y_test, pred_baseline, output_dir):
     """Save a plot of loss values (RMSE) for visualization."""
-    residuals = np.abs(y_test - y_pred)
+    residuals = np.abs(y_test - pred_baseline)
     sorted_residuals = np.sort(residuals)
     cumulative_loss = np.cumsum(sorted_residuals) / np.sum(sorted_residuals)
 
@@ -57,44 +70,53 @@ def calculate_loss_curve(y_test, y_pred, output_dir):
     plt.savefig(os.path.join(output_dir, 'loss_curve.png'), dpi=300)
     plt.close()
 
-def main():
-    parser = argparse.ArgumentParser(description="Train a Linear Regression model.")
-    parser.add_argument("--input", required=True, help="Path to input CSV file.")
-    parser.add_argument("--output", required=True, help="Path to save the trained model.")
-    parser.add_argument("--metrics_output", required=False, default="metrics", help="Path to save metrics and plots.")
-    args = parser.parse_args()
 
-    df = pd.read_csv(args.input)
-    print(f"[INFO] Data loaded: {df.shape}")
 
-    X, y = prepare_regression_data(df)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    model = LinearRegression()
-    model.fit(X_train, y_train)
 
-    y_pred = model.predict(X_test)
 
-    r2 = r2_score(y_test, y_pred)
-    rmse = mean_squared_error(y_test, y_pred, squared=False)
-    mae = mean_absolute_error(y_test, y_pred)
 
-    print(f"[INFO] R2: {r2:.3f}, RMSE: {rmse:.2f}, MAE: {mae:.2f}")
+if __name__ == '__main__':
+    args = parser_args_for_sac()
 
-    metrics_path = os.path.join(args.metrics_output, 'linear_regression_metrics.txt')
-    os.makedirs(args.metrics_output, exist_ok=True)
-    with open(metrics_path, 'w') as f:
-        f.write(f"R2: {r2:.3f}\n")
-        f.write(f"RMSE: {rmse:.2f}\n")
-        f.write(f"MAE: {mae:.2f}\n")
+    input_dir = Path(args.input_dir)
+    output_dir = Path(args.output_dir)
 
-    plot_metrics(y_test, y_pred, args.metrics_output)
-    plot_weight_distribution(model, X.columns, args.metrics_output)
-    calculate_loss_curve(y_test, y_pred, args.metrics_output)
+    output_dir.mkdir(exist_ok=True, parents=True)
+    output_model_path = output_dir / (args.model_name + '.csv')
+    output_model_joblib_path = output_dir / (args.model_name + '.joblib')
 
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
-    joblib.dump(model, args.output)
-    print(f"[INFO] Model saved to {args.output}")
+    X_train_name = input_dir / 'X_train.csv'
+    y_train_name = input_dir / 'y_train.csv'
+    X_test_name = input_dir / 'X_test.csv'
+    y_test_name = input_dir / 'y_test.csv'
 
-if __name__ == "__main__":
-    main()
+    X_train = pd.read_csv(X_train_name)
+    y_train = pd.read_csv(y_train_name)
+    X_test = pd.read_csv(X_test_name)
+    y_test = pd.read_csv(y_test_name)
+
+    reg = LINEAR_MODELS_MAPPER.get(args.model_name)().fit(X_train, y_train)
+
+    y_mean = y_test.mean()
+    y_pred_baseline = [y_mean] * len(y_test)
+
+    predicted_values = np.squeeze(reg.predict(X_test))
+
+    print(reg.score(X_test, y_test))
+    print("Mean apt salary: ", y_mean)
+    print("Baseline MAE: ", mean_absolute_error(y_test, y_pred_baseline))
+    print("Model MAE: ", mean_absolute_error(y_test, predicted_values))
+
+    intercept = reg.intercept_.astype(float)
+    coefficients = reg.coef_.astype(float)
+    intercept = pd.Series(intercept, name='intercept')
+    coefficients = pd.Series(coefficients[0], name='coefficients')
+    print("intercept:", intercept)
+    print("list of coefficients:", coefficients)
+    columns = [x for x in range(len(coefficients))]
+    out_model = pd.DataFrame([coefficients, intercept])
+    out_model.to_csv(output_model_path, index=False)
+
+    dump(reg, output_model_joblib_path)
+
