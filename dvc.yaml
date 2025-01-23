@@ -1,0 +1,79 @@
+stages:
+  preprocessing:
+    cmd: jupyter nbconvert --to notebook --execute Moiseev/jupyter/preprocessing.ipynb 2>nul
+    deps:
+      - Moiseev/jupyter/preprocessing.ipynb
+      - Moiseev/data/raw/life_expectancy_data.csv
+    outs:
+      - Moiseev/jupyter/cleaned_life_expectancy_data.csv
+
+  eda:
+    cmd: jupyter nbconvert --to notebook --execute Moiseev/jupyter/eda.ipynb 2>nul
+    deps:
+      - Moiseev/jupyter/eda.ipynb
+      - Moiseev/jupyter/cleaned_life_expectancy_data.csv
+    outs:
+      - Moiseev/jupyter/final_dataset.csv
+
+  pipeline:
+    cmd: jupyter nbconvert --to notebook --execute Moiseev/jupyter/Pipeline.ipynb 2>nul
+    deps:
+      - Moiseev/jupyter/Pipeline.ipynb
+      - Moiseev/jupyter/final_dataset.csv
+    outs:
+      - Moiseev/jupyter/X_test.csv
+      - Moiseev/jupyter/X_train.csv
+      - Moiseev/jupyter/y_test.csv
+      - Moiseev/jupyter/y_train.csv
+
+  redline:
+    cmd: jupyter nbconvert --to notebook --execute Moiseev/jupyter/redline.ipynb 2>nul
+    deps:
+      - Moiseev/jupyter/redline.ipynb
+      - Moiseev/jupyter/X_test.csv
+      - Moiseev/jupyter/X_train.csv
+      - Moiseev/jupyter/y_test.csv
+      - Moiseev/jupyter/y_train.csv
+    outs:
+      - Moiseev/jupyter/models/redline_model.pkl
+    metrics:
+      - Moiseev/jupyter/metrics/redline_metrics.json
+
+  wisdom_tree:
+    cmd: jupyter nbconvert --to notebook --execute Moiseev/jupyter/wisdom_tree.ipynb 2>nul
+    deps:
+      - Moiseev/jupyter/wisdom_tree.ipynb
+      - Moiseev/jupyter/X_test.csv
+      - Moiseev/jupyter/X_train.csv
+      - Moiseev/jupyter/y_test.csv
+      - Moiseev/jupyter/y_train.csv
+    outs:
+      - Moiseev/jupyter/models/wisdom_tree_model.pkl
+    metrics:
+      - Moiseev/jupyter/metrics/wisdom_tree_metrics.json
+
+  lazycat:
+    cmd: jupyter nbconvert --to notebook --execute Moiseev/jupyter/lazycat.ipynb 2>nul
+    deps:
+      - Moiseev/jupyter/lazycat.ipynb
+      - Moiseev/jupyter/X_test.csv
+      - Moiseev/jupyter/X_train.csv
+      - Moiseev/jupyter/y_test.csv
+      - Moiseev/jupyter/y_train.csv
+    outs:
+      - Moiseev/jupyter/models/lazycat_model.pkl
+    metrics:
+      - Moiseev/jupyter/metrics/lazycat_metrics.json
+
+  bigbraintime:
+    cmd: jupyter nbconvert --to notebook --execute Moiseev/jupyter/bigbraintime.ipynb 2>nul
+    deps:
+      - Moiseev/jupyter/bigbraintime.ipynb
+      - Moiseev/jupyter/X_test.csv
+      - Moiseev/jupyter/X_train.csv
+      - Moiseev/jupyter/y_test.csv
+      - Moiseev/jupyter/y_train.csv
+    outs:
+      - Moiseev/jupyter/models/bigbraintime_model.pkl
+    metrics:
+      - Moiseev/jupyter/metrics/bigbraintime_metrics.json
