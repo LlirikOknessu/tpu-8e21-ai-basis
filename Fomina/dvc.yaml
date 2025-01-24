@@ -1,0 +1,79 @@
+stages:
+  preprocessing:
+    cmd: jupyter nbconvert --to notebook --execute jupyter\preprocessing.ipynb 2>nul
+    deps:
+      - jupyter\preprocessing.ipynb
+      - data\raw\life_expectancy_data.csv
+    outs:
+      - jupyter\cleaned_life_expectancy_data.csv
+
+  eda:
+    cmd: jupyter nbconvert --to notebook --execute jupyter\eda.ipynb 2>nul
+    deps:
+      - jupyter\eda.ipynb
+      - jupyter\cleaned_life_expectancy_data.csv
+    outs:
+      - jupyter\final_dataset.csv
+
+  pipeline:
+    cmd: jupyter nbconvert --to notebook --execute jupyter\pipeline.ipynb 2>nul
+    deps:
+      - jupyter\pipeline.ipynb
+      - jupyter\final_dataset.csv
+    outs:
+      - jupyter\X_test.csv
+      - jupyter\X_train.csv
+      - jupyter\y_test.csv
+      - jupyter\y_train.csv
+
+  linear_regression:
+    cmd: jupyter nbconvert --to notebook --execute jupyter\linear_regr.ipynb 2>nul
+    deps:
+      - jupyter\linear_regr.ipynb
+      - jupyter\X_test.csv
+      - jupyter\X_train.csv
+      - jupyter\y_test.csv
+      - jupyter\y_train.csv
+    outs:
+      - jupyter\models\linear_regression_model.pkl
+    metrics:
+      - jupyter\metrics\neural_network_metrics.json
+
+  tree:
+    cmd: jupyter nbconvert --to notebook --execute jupyter\tree.ipynb 2>nul
+    deps:
+      - jupyter\tree.ipynb
+      - jupyter\X_test.csv
+      - jupyter\X_train.csv
+      - jupyter\y_test.csv
+      - jupyter\y_train.csv
+    outs:
+      - jupyter\models\tree_model.pkl
+    metrics:
+      - jupyter\metrics\tree_metrics.json
+
+  catboost:
+    cmd: jupyter nbconvert --to notebook --execute jupyter\catboost.ipynb 2>nul
+    deps:
+      - jupyter\catboost.ipynb
+      - jupyter\X_test.csv
+      - jupyter\X_train.csv
+      - jupyter\y_test.csv
+      - jupyter\y_train.csv
+    outs:
+      - jupyter\models\catboost_model.pkl
+    metrics:
+      - jupyter\metrics\catboost_metrics.json
+
+  neural_network:
+    cmd: jupyter nbconvert --to notebook --execute jupyter\neural_network.ipynb 2>nul
+    deps:
+      - jupyter\neural_network.ipynb
+      - jupyter\X_test.csv
+      - jupyter\X_train.csv
+      - jupyter\y_test.csv
+      - jupyter\y_train.csv
+    outs:
+      - jupyter\models\neural_network_model.pkl
+    metrics:
+      - jupyter\metrics\neural_network_metrics.json
